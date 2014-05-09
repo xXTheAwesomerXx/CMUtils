@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.Serializable;
+
 import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.text.AttributeSet;
@@ -34,6 +35,9 @@ public class CMUtilsGUI extends JFrame {
 		if (tabbedPane.getSelectedIndex() != 0) {
 			tabbedPane.setSelectedIndex(0);
 			logArea.append("Set selected view to Devices \n");
+			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+					.getVerticalScrollBar();
+			scrollbar.setValue(scrollbar.getMaximum());
 		}
 		allPhonesThread phoneThread = new allPhonesThread("GAPT", 1, 1, "");
 		phoneThread.start();
@@ -42,191 +46,40 @@ public class CMUtilsGUI extends JFrame {
 	private void lineAssocItemActionPerformed(ActionEvent e) {
 		if (tabbedPane.getSelectedIndex() != 1) {
 			tabbedPane.setSelectedIndex(1);
-			logArea.append("Set selected view to Line Association \n");
+			logArea.append("Set selected view to Associated Lines \n");
+			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+					.getVerticalScrollBar();
+			scrollbar.setValue(scrollbar.getMaximum());
 		}
-		Methods.getAllEndusers();
-		Methods.getNumplanAssoc();
-		// TODO
-		DefaultTableModel model = new DefaultTableModel(
-				Variables.lineAssocTableRows, Variables.lineAssocTableColumns) {
-
-			boolean[] canEdit = new boolean[] { false, false };
-
-			public boolean isCellEditable(int rowIndex, int columnIndex) {
-				return canEdit[columnIndex];
-			}
-
-		};
-		lineAssocTable.setModel(model);
+		lineAssocThread phoneThread = new lineAssocThread("GAPT");
+		phoneThread.start();
 	}
 
 	private void deviceAssocItemActionPerformed(ActionEvent e) {
 		if (tabbedPane.getSelectedIndex() != 2) {
 			tabbedPane.setSelectedIndex(2);
-			logArea.append("Set selected view to Device Association \n");
+			logArea.append("Set selected view to Associated Devices \n");
+			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+					.getVerticalScrollBar();
+			scrollbar.setValue(scrollbar.getMaximum());
 		}
-		try {
-			Methods.getDeviceAssoc();
-			Methods.getDeviceAssocDevices();
-			// lookupDeviceType(1, 1, "");
-			// lookupDevicepool(1, 1, "");
-			// TODO
-			DefaultTableModel model = new DefaultTableModel(
-					Variables.deviceAssocTableRows,
-					Variables.deviceAssocTableColumns) {
-
-				boolean[] canEdit = new boolean[] { false, true, false, false,
-						false, true };
-
-				public boolean isCellEditable(int rowIndex, int columnIndex) {
-					return canEdit[columnIndex];
-				}
-
-			};
-			deviceAssocTable.setModel(model);
-			TableColumn NC = deviceAssocTable.getColumnModel().getColumn(0);
-			TableColumn UpdateColumn = deviceAssocTable.getColumnModel()
-					.getColumn(5);
-			TableColumn DNC = deviceAssocTable.getColumnModel().getColumn(1);
-			final JComboBox deviceNameCombo = new JComboBox(
-					Variables.devAssocDevicenames);
-			deviceNameCombo.setEditable(true);
-			final JCheckBox updateRow = new JCheckBox();
-			new S15WorkingBackspace(deviceNameCombo);
-			updateRow.setSelected(false);
-			updateRow.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (updateRow.isSelected()) {
-						System.out.println("Update: TRUE");
-					}
-
-				}
-
-			});
-			DNC.setCellEditor(new ComboBoxCellEditor(deviceNameCombo));
-			NC.setPreferredWidth(5);
-			UpdateColumn.setPreferredWidth(5);
-			UpdateColumn.setCellEditor(new DefaultCellEditor(updateRow));
-		} catch (Exception error) {
-			error.printStackTrace();
-		}
-		Variables.oldDeviceAssocTableEnduserRows = new String[deviceAssocTable
-				.getRowCount()][1];
-		// for (int i = 0; i < deviceAssocTable.getRowCount(); i++) {
-		// if (deviceAssocTable.getModel().getValueAt(i, 1).toString() != null)
-		// {
-		// Variables.oldDeviceAssocTableEnduserRows[i][0] = deviceAssocTable
-		// .getModel().getValueAt(i, 1).toString();
-		// }
-		// }
-//		for (int i = 0; i < deviceAssocTable.getRowCount(); i++) {
-//			Variables.deviceAssocTableRows[i][4] = "false";
-//			Variables.deviceAssocTableRows[i][1] = "NONE";
-//		}
-		TableRowSorter<TableModel> devAssocSort = new TableRowSorter<TableModel>(
-				deviceAssocTable.getModel());
-		deviceAssocTable.setRowSorter(devAssocSort);
-		/*
-		 * if (tabbedPane.getSelectedIndex() != 2) {
-		 * tabbedPane.setSelectedIndex(2);
-		 * logArea.append("Set selected view to Device Association \n"); } try {
-		 * Methods.getDeviceAssoc(); Methods.getAllEndusers(); //
-		 * lookupDeviceType(1, 1, ""); // lookupDevicepool(1, 1, ""); for (int i
-		 * = 0; i < deviceAssocTable.getRowCount(); i++) {
-		 * Variables.deviceAssocTableRows[i][5] = "false"; } // TODO
-		 * DefaultTableModel model = new DefaultTableModel(
-		 * Variables.deviceAssocTableRows, Variables.deviceAssocTableColumns) {
-		 * 
-		 * boolean[] canEdit = new boolean[] { false, false, true, true, true,
-		 * true };
-		 * 
-		 * public boolean isCellEditable(int rowIndex, int columnIndex) { return
-		 * canEdit[columnIndex]; }
-		 * 
-		 * }; deviceAssocTable.setModel(model); TableColumn UIDC =
-		 * deviceAssocTable.getColumnModel().getColumn(2); TableColumn FNC =
-		 * deviceAssocTable.getColumnModel().getColumn(3); TableColumn LNC =
-		 * deviceAssocTable.getColumnModel().getColumn(4); TableColumn NC =
-		 * deviceAssocTable.getColumnModel().getColumn(0); TableColumn
-		 * UpdateColumn = deviceAssocTable.getColumnModel() .getColumn(5); final
-		 * JComboBox firstnameCombo = new JComboBox(
-		 * Variables.phoneAllEndusersFirstnames); final JComboBox lastnameCombo
-		 * = new JComboBox( Variables.phoneAllEndusersLastnames); final
-		 * JComboBox useridCombo = new JComboBox(
-		 * Variables.phoneAllEndusersIDs); final JCheckBox updateRow = new
-		 * JCheckBox(); firstnameCombo.setEditable(true);
-		 * lastnameCombo.setEditable(true); useridCombo.setEditable(true);
-		 * updateRow.setSelected(false); new
-		 * S15WorkingBackspace(firstnameCombo); new
-		 * S15WorkingBackspace(lastnameCombo); new
-		 * S15WorkingBackspace(useridCombo); final int firstnameCol = 3,
-		 * lastnameCol = 4, useridCol = 2; updateRow.addActionListener(new
-		 * ActionListener() {
-		 * 
-		 * @Override public void actionPerformed(ActionEvent e) { if
-		 * (updateRow.isSelected()) { System.out.println("Update: TRUE"); }
-		 * 
-		 * }
-		 * 
-		 * }); firstnameCombo.addItemListener(new ItemListener() { public void
-		 * itemStateChanged(ItemEvent e) { if (e.getStateChange() ==
-		 * ItemEvent.SELECTED) { deviceAssocTable.getModel().setValueAt(
-		 * lastnameCombo.getItemAt(firstnameCombo .getSelectedIndex()),
-		 * deviceAssocTable.getSelectedRow(), lastnameCol);
-		 * deviceAssocTable.getModel().setValueAt(
-		 * useridCombo.getItemAt(firstnameCombo .getSelectedIndex()),
-		 * deviceAssocTable.getSelectedRow(), useridCol); }
-		 * 
-		 * } }); lastnameCombo.addItemListener(new ItemListener() { public void
-		 * itemStateChanged(ItemEvent e) { if (e.getStateChange() ==
-		 * ItemEvent.SELECTED) { deviceAssocTable.getModel() .setValueAt(
-		 * firstnameCombo.getItemAt(lastnameCombo .getSelectedIndex()),
-		 * deviceAssocTable.getSelectedRow(), firstnameCol);
-		 * deviceAssocTable.getModel().setValueAt(
-		 * useridCombo.getItemAt(lastnameCombo .getSelectedIndex()),
-		 * deviceAssocTable.getSelectedRow(), useridCol); } } });
-		 * useridCombo.addItemListener(new ItemListener() { public void
-		 * itemStateChanged(ItemEvent e) { if (e.getStateChange() ==
-		 * ItemEvent.SELECTED) { deviceAssocTable.getModel() .setValueAt(
-		 * firstnameCombo.getItemAt(useridCombo .getSelectedIndex()),
-		 * deviceAssocTable.getSelectedRow(), firstnameCol);
-		 * deviceAssocTable.getModel().setValueAt(
-		 * lastnameCombo.getItemAt(useridCombo .getSelectedIndex()),
-		 * deviceAssocTable.getSelectedRow(), lastnameCol); } } });
-		 * UIDC.setCellEditor(new ComboBoxCellEditor(useridCombo));
-		 * LNC.setCellEditor(new ComboBoxCellEditor(lastnameCombo));
-		 * FNC.setCellEditor(new ComboBoxCellEditor(firstnameCombo));
-		 * NC.setPreferredWidth(5); UpdateColumn.setPreferredWidth(5);
-		 * UpdateColumn.setCellEditor(new DefaultCellEditor(updateRow)); } catch
-		 * (Exception error) { error.printStackTrace(); }
-		 * Variables.oldDeviceAssocTableEnduserRows = new
-		 * String[deviceAssocTable .getRowCount()][4]; for (int i = 0; i <
-		 * deviceAssocTable.getRowCount(); i++) {
-		 * Variables.oldDeviceAssocTableEnduserRows[i][0] = deviceAssocTable
-		 * .getModel().getValueAt(i, 1).toString();
-		 * Variables.oldDeviceAssocTableEnduserRows[i][1] = deviceAssocTable
-		 * .getModel().getValueAt(i, 2).toString();
-		 * Variables.oldDeviceAssocTableEnduserRows[i][2] = deviceAssocTable
-		 * .getModel().getValueAt(i, 3).toString();
-		 * Variables.oldDeviceAssocTableEnduserRows[i][3] = deviceAssocTable
-		 * .getModel().getValueAt(i, 4).toString(); } for (int i = 0; i <
-		 * deviceAssocTable.getRowCount(); i++) {
-		 * Variables.deviceAssocTableRows[i][5] = "false"; }
-		 * TableRowSorter<TableModel> devAssocSort = new
-		 * TableRowSorter<TableModel>( deviceAssocTable.getModel());
-		 * deviceAssocTable.setRowSorter(devAssocSort);
-		 */
+		devAssocThread phoneThread = new devAssocThread("GAPT");
+		phoneThread.start();
 	}
 
 	private void exportItemActionPerformed(ActionEvent e) {
 		if (deviceTable.getRowCount() <= 0) {
 			logArea.append("Table is empty, cannot export table to CSV!");
+			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+					.getVerticalScrollBar();
+			scrollbar.setValue(scrollbar.getMaximum());
 		} else {
 			ExcelExporter ee = new ExcelExporter(deviceTable, "", false);
 			ee.storeTableAsCSV(new File("database.csv"), deviceTable);
 			logArea.append("Successfully exported table!");
+			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+					.getVerticalScrollBar();
+			scrollbar.setValue(scrollbar.getMaximum());
 		}
 	}
 
@@ -246,6 +99,9 @@ public class CMUtilsGUI extends JFrame {
 		if (tabbedPane.getSelectedIndex() != 0) {
 			tabbedPane.setSelectedIndex(0);
 			logArea.append("Set selected view to Devices \n");
+			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+					.getVerticalScrollBar();
+			scrollbar.setValue(scrollbar.getMaximum());
 		}
 		int arg1 = fieldComboBox.getSelectedIndex() + 1;
 		int arg2 = condComboBox.getSelectedIndex() + 1;
@@ -263,9 +119,8 @@ public class CMUtilsGUI extends JFrame {
 			if (n == JOptionPane.YES_OPTION) {
 				// updateDeviceSetEnduser(arg1, arg2);
 				// addEnduserDeviceMap(arg1, arg2);
-				Variables.newDeviceTableEnduserRows = new String[deviceTable
-						.getRowCount()][4];
-				for (int i = 0; i < deviceTable.getRowCount(); i++) {
+				Variables.newDeviceTableEnduserRows = new String[Variables.phoneNames.length + 1][4];
+				for (int i = 0; i < Variables.phoneNames.length + 1; i++) {
 					Variables.newDeviceTableEnduserRows[i][0] = deviceTable
 							.getModel().getValueAt(i, 4).toString();
 					Variables.newDeviceTableEnduserRows[i][1] = deviceTable
@@ -290,6 +145,9 @@ public class CMUtilsGUI extends JFrame {
 								+ ", "
 								+ Variables.newDeviceTableEnduserRows[i][1]
 								+ "\n");
+						JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+								.getVerticalScrollBar();
+						scrollbar.setValue(scrollbar.getMaximum());
 						newUpdateThread.start();
 						// Methods.updateDeviceSetEnduser(
 						// Variables.newDeviceTableEnduserRows[i][0],
@@ -551,168 +409,19 @@ public class CMUtilsGUI extends JFrame {
 				@Override
 				public void keyPressed(KeyEvent p) {
 					if (p.getKeyCode() == p.VK_ENTER) {
-						for (int i = 0; i < deviceTable.getRowCount(); i++) {
-							Variables.deviceTableRows[i][8] = "false";
+						int arg1 = fieldComboBox.getSelectedIndex() + 1;
+						int arg2 = condComboBox.getSelectedIndex() + 1;
+						String sqlQuery = condTextField.getText();
+						if (tabbedPane.getSelectedIndex() != 0) {
+							tabbedPane.setSelectedIndex(0);
+							logArea.append("Set selected view to Devices \n");
+							JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+									.getVerticalScrollBar();
+							scrollbar.setValue(scrollbar.getMaximum());
 						}
-						try {
-							int arg1 = fieldComboBox.getSelectedIndex() + 1;
-							int arg2 = condComboBox.getSelectedIndex() + 1;
-							System.out.println("Arg1, Arg2: " + arg1 + arg2);
-							Methods.getDevices(arg1, arg2,
-									condTextField.getText());
-							Methods.getAllEndusers();
-							// TODO
-							DefaultTableModel model = new DefaultTableModel(
-									Variables.deviceTableRows,
-									Variables.deviceTableColumns) {
-
-								boolean[] canEdit = new boolean[] { false,
-										true, true, true, true, false, false,
-										true, true /* Checkbox */};
-
-								public boolean isCellEditable(int rowIndex,
-										int columnIndex) {
-									return canEdit[columnIndex];
-								}
-
-								Class[] columnTypes = { String.class,
-										String.class, JComboBox.class,
-										JComboBox.class, JComboBox.class,
-										String.class, String.class,
-										String.class, JCheckBox.class };
-
-								public Class<?> getColumnClass(int columnIndex) {
-									return this.columnTypes[columnIndex];
-								}
-
-							};
-							deviceTable.setModel(model);
-							TableColumn UIDC = deviceTable.getColumnModel()
-									.getColumn(4);
-							TableColumn LNC = deviceTable.getColumnModel()
-									.getColumn(3);
-							TableColumn FNC = deviceTable.getColumnModel()
-									.getColumn(2);
-							TableColumn NC = deviceTable.getColumnModel()
-									.getColumn(0);
-							TableColumn UpdateColumn = deviceTable
-									.getColumnModel().getColumn(8);
-							final JComboBox firstnameCombo = new JComboBox(
-									Variables.phoneAllEndusersFirstnames);
-							final JComboBox lastnameCombo = new JComboBox(
-									Variables.phoneAllEndusersLastnames);
-							final JComboBox useridCombo = new JComboBox(
-									Variables.phoneAllEndusersIDs);
-							final JCheckBox updateRow = new JCheckBox();
-							firstnameCombo.setEditable(true);
-							lastnameCombo.setEditable(true);
-							useridCombo.setEditable(true);
-							updateRow.setSelected(false);
-							new S15WorkingBackspace(firstnameCombo);
-							new S15WorkingBackspace(lastnameCombo);
-							new S15WorkingBackspace(useridCombo);
-							final int firstnameCol = 2, lastnameCol = 3, useridCol = 4;
-							firstnameCombo.addItemListener(new ItemListener() {
-								public void itemStateChanged(ItemEvent e) {
-									if (e.getStateChange() == ItemEvent.SELECTED) {
-										try {
-											deviceTable
-													.getModel()
-													.setValueAt(
-															lastnameCombo
-																	.getItemAt(firstnameCombo
-																			.getSelectedIndex()),
-															deviceTable
-																	.getSelectedRow(),
-															lastnameCol);
-											deviceTable
-													.getModel()
-													.setValueAt(
-															useridCombo
-																	.getItemAt(firstnameCombo
-																			.getSelectedIndex()),
-															deviceTable
-																	.getSelectedRow(),
-															useridCol);
-										} catch (Exception ex) {
-											ex.printStackTrace();
-										}
-									}
-								}
-							});
-							lastnameCombo.addItemListener(new ItemListener() {
-								public void itemStateChanged(ItemEvent e) {
-									if (e.getStateChange() == ItemEvent.SELECTED) {
-										deviceTable
-												.getModel()
-												.setValueAt(
-														firstnameCombo
-																.getItemAt(lastnameCombo
-																		.getSelectedIndex()),
-														deviceTable
-																.getSelectedRow(),
-														firstnameCol);
-										deviceTable
-												.getModel()
-												.setValueAt(
-														useridCombo
-																.getItemAt(lastnameCombo
-																		.getSelectedIndex()),
-														deviceTable
-																.getSelectedRow(),
-														useridCol);
-									}
-								}
-							});
-							useridCombo.addItemListener(new ItemListener() {
-								public void itemStateChanged(ItemEvent e) {
-									if (e.getStateChange() == ItemEvent.SELECTED) {
-										deviceTable
-												.getModel()
-												.setValueAt(
-														firstnameCombo
-																.getItemAt(useridCombo
-																		.getSelectedIndex()),
-														deviceTable
-																.getSelectedRow(),
-														firstnameCol);
-										deviceTable
-												.getModel()
-												.setValueAt(
-														lastnameCombo
-																.getItemAt(useridCombo
-																		.getSelectedIndex()),
-														deviceTable
-																.getSelectedRow(),
-														lastnameCol);
-									}
-								}
-							});
-							UIDC.setCellEditor(new ComboBoxCellEditor(
-									useridCombo));
-							LNC.setCellEditor(new ComboBoxCellEditor(
-									lastnameCombo));
-							FNC.setCellEditor(new ComboBoxCellEditor(
-									firstnameCombo));
-							NC.setPreferredWidth(5);
-							UpdateColumn.setPreferredWidth(5);
-							UpdateColumn.setCellEditor(new DefaultCellEditor(
-									updateRow));
-						} catch (Exception error) {
-							error.printStackTrace();
-						}
-						Variables.oldDeviceTableEnduserRows = new String[deviceTable
-								.getRowCount()][4];
-						for (int i = 0; i < deviceTable.getRowCount(); i++) {
-							Variables.oldDeviceTableEnduserRows[i][0] = deviceTable
-									.getModel().getValueAt(i, 4).toString();
-							Variables.oldDeviceTableEnduserRows[i][1] = deviceTable
-									.getModel().getValueAt(i, 3).toString();
-							Variables.oldDeviceTableEnduserRows[i][2] = deviceTable
-									.getModel().getValueAt(i, 2).toString();
-							Variables.oldDeviceTableEnduserRows[i][3] = deviceTable
-									.getModel().getValueAt(i, 1).toString();
-						}
+						allPhonesThread phoneThread = new allPhonesThread(
+								"GAPT", arg1, arg2, sqlQuery);
+						phoneThread.start();
 					}
 
 				}
@@ -877,8 +586,10 @@ public class CMUtilsGUI extends JFrame {
 						Variables.lineAssocTableRows,
 						Variables.lineAssocTableColumns) {
 					private static final long serialVersionUID = -6396300478056746940L;
-					Class[] columnTypes = { String.class, String.class };
-					boolean[] columnEditable = new boolean[2];
+					Class[] columnTypes = { String.class, String.class,
+							JComboBox.class, JComboBox.class, JComboBox.class,
+							JCheckBox.class };
+					boolean[] columnEditable = new boolean[6];
 
 					public Class<?> getColumnClass(int columnIndex) {
 						return this.columnTypes[columnIndex];
@@ -1072,14 +783,14 @@ public class CMUtilsGUI extends JFrame {
 	private JButton findButton;
 	private JButton executeButton;
 	private JTabbedPane tabbedPane;
-	private JScrollPane deviceTableScrollPane;
+	public static JScrollPane deviceTableScrollPane;
 	private JTable deviceTable;
-	private JScrollPane lineAssocPane;
+	public static JScrollPane lineAssocPane;
 	private JTable lineAssocTable;
-	private JScrollPane deviceAssocPane;
+	public static JScrollPane deviceAssocPane;
 	private JTable deviceAssocTable;
 	private JPanel logPanel;
-	private JScrollPane logScrollPane;
+	public static JScrollPane logScrollPane;
 	public static JTextArea logArea;
 	private JFrame aboutFrame;
 
@@ -1341,65 +1052,6 @@ public class CMUtilsGUI extends JFrame {
 		// }
 	}
 
-	public class updateThreadContainer extends Thread {
-		private Thread thread = null;
-		private String threadName;
-
-		updateThreadContainer(String name) {
-			threadName = name;
-		}
-
-		public void run() {
-			System.out.println("New update container");
-			Variables.newDeviceTableEnduserRows = new String[deviceTable
-					.getRowCount()][4];
-			for (int i = 0; i < deviceTable.getRowCount(); i++) {
-				Variables.newDeviceTableEnduserRows[i][0] = deviceTable
-						.getModel().getValueAt(i, 4).toString();
-				Variables.newDeviceTableEnduserRows[i][1] = deviceTable
-						.getModel().getValueAt(i, 3).toString();
-				Variables.newDeviceTableEnduserRows[i][2] = deviceTable
-						.getModel().getValueAt(i, 2).toString();
-				Variables.newDeviceTableEnduserRows[i][3] = deviceTable
-						.getModel().getValueAt(i, 1).toString();
-				if (deviceTable.getModel().getValueAt(i, 8).toString()
-						.equalsIgnoreCase("true")) {
-					updateThread newUpdateThread = new updateThread(deviceTable
-							.getModel().getValueAt(i, 0).toString(), i);
-					logArea.append("Update device: "
-							+ deviceTable.getModel().getValueAt(i, 1)
-									.toString() + ", User: "
-							+ Variables.oldDeviceTableEnduserRows[i][2] + ", "
-							+ Variables.oldDeviceTableEnduserRows[i][1]
-							+ " >> "
-							+ Variables.newDeviceTableEnduserRows[i][2] + ", "
-							+ Variables.newDeviceTableEnduserRows[i][1] + "\n");
-					newUpdateThread.start();
-					// Methods.updateDeviceSetEnduser(
-					// Variables.newDeviceTableEnduserRows[i][0],
-					// deviceTable.getModel().getValueAt(i, 1).toString());
-					// Methods.removeEnduserDeviceMap(Variables.oldDeviceTableEnduserRows[i][3]);
-					// Methods.addEnduserDeviceMap(
-					// Variables.newDeviceTableEnduserRows[i][0],
-					// deviceTable.getModel().getValueAt(i, 1).toString());
-					// Methods.addNumplan(Variables.newDeviceTableEnduserRows[i][0]);
-					// Methods.updatePrimaryExtension(
-					// Variables.newDeviceTableEnduserRows[i][0],
-					// deviceTable.getModel().getValueAt(i, 1).toString());
-					// Methods.addNumplanDevicemap(Variables.newDeviceTableEnduserRows[i][0]);
-					// Methods.addDevicenumplanEnduserNumplanAssoc(Variables.newDeviceTableEnduserRows[i][0]);
-				}
-			}
-		}
-
-		public void start() {
-			if (thread == null) {
-				thread = new Thread(this, threadName);
-				thread.start();
-			}
-		}
-	}
-
 	public class allPhonesThread extends Thread {
 		private Thread thread = null;
 		private String threadName;
@@ -1418,25 +1070,28 @@ public class CMUtilsGUI extends JFrame {
 			try {
 				progressBar allDevices = new progressBar();
 				allDevices.setVisible(true);
-				Methods.getDevices(1, 1, "");
+				Methods.getDevices(argument1, argument2, sqlQuery);
 				Methods.getAllEndusers();
 				// lookupDeviceType(1, 1, "");
 				// lookupDevicepool(1, 1, "");
 				// TODO
 				allDevices.setVisible(false);
-				for (int i = 0; i < deviceTable.getRowCount(); i++) {
-					Variables.deviceTableRows[i][8] = "false";
-				}
+				// for (int i = 0; i < Variables.phoneNames.length; i++) {
+				// Variables.deviceTableRows[i][8] = "false";
+				// }
+				JScrollBar scrollbar = CMUtilsGUI.deviceTableScrollPane
+						.getVerticalScrollBar();
+				scrollbar.setValue(scrollbar.getMinimum());
 				DefaultTableModel model = new DefaultTableModel(
 						Variables.deviceTableRows, Variables.deviceTableColumns) {
-					Class[] columnTypes = { String.class, String.class,
-							JComboBox.class, JComboBox.class, JComboBox.class,
-							String.class, String.class, String.class,
-							JCheckBox.class };
-
-					public Class<?> getColumnClass(int columnIndex) {
-						return this.columnTypes[columnIndex];
-					}
+					// Class[] columnTypes = { String.class, String.class,
+					// JComboBox.class, JComboBox.class, JComboBox.class,
+					// String.class, String.class, String.class,
+					// JCheckBox.class };
+					//
+					// public Class<?> getColumnClass(int columnIndex) {
+					// return this.columnTypes[columnIndex];
+					// }
 
 					boolean[] canEdit = new boolean[] { false, true, true,
 							true, true, false, false, true, true /* Checkbox */};
@@ -1468,6 +1123,15 @@ public class CMUtilsGUI extends JFrame {
 				new S15WorkingBackspace(lastnameCombo);
 				new S15WorkingBackspace(useridCombo);
 				final int firstnameCol = 2, lastnameCol = 3, useridCol = 4;
+				if (firstnameCombo.getSelectedIndex() == -1) {
+					firstnameCombo.setSelectedIndex(0);
+				}
+				if (lastnameCombo.getSelectedIndex() == -1) {
+					lastnameCombo.setSelectedIndex(0);
+				}
+				if (useridCombo.getSelectedIndex() == -1) {
+					useridCombo.setSelectedIndex(0);
+				}
 				updateRow.addActionListener(new ActionListener() {
 
 					@Override
@@ -1482,14 +1146,23 @@ public class CMUtilsGUI extends JFrame {
 				firstnameCombo.addItemListener(new ItemListener() {
 					public void itemStateChanged(ItemEvent e) {
 						if (e.getStateChange() == ItemEvent.SELECTED) {
-							deviceTable.getModel().setValueAt(
-									lastnameCombo.getItemAt(firstnameCombo
-											.getSelectedIndex()),
-									deviceTable.getSelectedRow(), lastnameCol);
-							deviceTable.getModel().setValueAt(
-									useridCombo.getItemAt(firstnameCombo
-											.getSelectedIndex()),
-									deviceTable.getSelectedRow(), useridCol);
+							try {
+								deviceTable.getModel().setValueAt(
+										lastnameCombo.getItemAt(firstnameCombo
+												.getSelectedIndex()),
+										deviceTable.getSelectedRow(),
+										lastnameCol);
+								deviceTable
+										.getModel()
+										.setValueAt(
+												useridCombo
+														.getItemAt(firstnameCombo
+																.getSelectedIndex()),
+												deviceTable.getSelectedRow(),
+												useridCol);
+							} catch (Exception ex) {
+								ex.printStackTrace();
+							}
 						}
 
 					}
@@ -1497,28 +1170,43 @@ public class CMUtilsGUI extends JFrame {
 				lastnameCombo.addItemListener(new ItemListener() {
 					public void itemStateChanged(ItemEvent e) {
 						if (e.getStateChange() == ItemEvent.SELECTED) {
-							deviceTable.getModel().setValueAt(
-									firstnameCombo.getItemAt(lastnameCombo
-											.getSelectedIndex()),
-									deviceTable.getSelectedRow(), firstnameCol);
-							deviceTable.getModel().setValueAt(
-									useridCombo.getItemAt(lastnameCombo
-											.getSelectedIndex()),
-									deviceTable.getSelectedRow(), useridCol);
+							try {
+								deviceTable.getModel().setValueAt(
+										firstnameCombo.getItemAt(lastnameCombo
+												.getSelectedIndex()),
+										deviceTable.getSelectedRow(),
+										firstnameCol);
+								deviceTable
+										.getModel()
+										.setValueAt(
+												useridCombo
+														.getItemAt(lastnameCombo
+																.getSelectedIndex()),
+												deviceTable.getSelectedRow(),
+												useridCol);
+							} catch (Exception ex) {
+								ex.printStackTrace();
+							}
 						}
 					}
 				});
 				useridCombo.addItemListener(new ItemListener() {
 					public void itemStateChanged(ItemEvent e) {
 						if (e.getStateChange() == ItemEvent.SELECTED) {
-							deviceTable.getModel().setValueAt(
-									firstnameCombo.getItemAt(useridCombo
-											.getSelectedIndex()),
-									deviceTable.getSelectedRow(), firstnameCol);
-							deviceTable.getModel().setValueAt(
-									lastnameCombo.getItemAt(useridCombo
-											.getSelectedIndex()),
-									deviceTable.getSelectedRow(), lastnameCol);
+							try {
+								deviceTable.getModel().setValueAt(
+										firstnameCombo.getItemAt(useridCombo
+												.getSelectedIndex()),
+										deviceTable.getSelectedRow(),
+										firstnameCol);
+								deviceTable.getModel().setValueAt(
+										lastnameCombo.getItemAt(useridCombo
+												.getSelectedIndex()),
+										deviceTable.getSelectedRow(),
+										lastnameCol);
+							} catch (Exception ex) {
+								ex.printStackTrace();
+							}
 						}
 					}
 				});
@@ -1531,11 +1219,12 @@ public class CMUtilsGUI extends JFrame {
 			} catch (Exception error) {
 				error.printStackTrace();
 			}
-			Variables.oldDeviceTableEnduserRows = new String[deviceTable
-					.getRowCount()][4];
-			for (int i = 0; i < deviceTable.getRowCount(); i++) {
+			Variables.oldDeviceTableEnduserRows = new String[Variables.phoneNames.length + 1][4];
+			for (int i = 0; i < Variables.phoneNames.length; i++) {
 				Variables.oldDeviceTableEnduserRows[i][0] = deviceTable
 						.getModel().getValueAt(i, 4).toString();
+				System.out.println(deviceTable.getModel().getValueAt(i, 4)
+						.toString());
 				Variables.oldDeviceTableEnduserRows[i][1] = deviceTable
 						.getModel().getValueAt(i, 3).toString();
 				Variables.oldDeviceTableEnduserRows[i][2] = deviceTable
@@ -1546,6 +1235,237 @@ public class CMUtilsGUI extends JFrame {
 			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(
 					deviceTable.getModel());
 			deviceTable.setRowSorter(sorter);
+		}
+
+		public void start() {
+			if (thread == null) {
+				thread = new Thread(this, threadName);
+				thread.start();
+			}
+		}
+	}
+
+	public class devAssocThread extends Thread {
+		private Thread thread = null;
+		private String threadName;
+
+		devAssocThread(String name) {
+			threadName = name;
+		}
+
+		public void run() {
+			try {
+				progressBar allDevices = new progressBar();
+				allDevices.setVisible(true);
+				Methods.getDeviceAssoc();
+				Methods.getDeviceAssocDevices();
+				allDevices.setVisible(false);
+				// lookupDeviceType(1, 1, "");
+				// lookupDevicepool(1, 1, "");
+				// TODO
+				DefaultTableModel model = new DefaultTableModel(
+						Variables.deviceAssocTableRows,
+						Variables.deviceAssocTableColumns) {
+
+					boolean[] canEdit = new boolean[] { false, true, false,
+							false, false, true };
+
+					public boolean isCellEditable(int rowIndex, int columnIndex) {
+						return canEdit[columnIndex];
+					}
+
+				};
+				deviceAssocTable.setModel(model);
+				TableColumn NC = deviceAssocTable.getColumnModel().getColumn(0);
+				TableColumn UpdateColumn = deviceAssocTable.getColumnModel()
+						.getColumn(5);
+				TableColumn DNC = deviceAssocTable.getColumnModel()
+						.getColumn(1);
+				final JComboBox deviceNameCombo = new JComboBox(
+						Variables.devAssocDevicenames);
+				deviceNameCombo.setEditable(true);
+				final JCheckBox updateRow = new JCheckBox();
+				new S15WorkingBackspace(deviceNameCombo);
+				updateRow.setSelected(false);
+				updateRow.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						if (updateRow.isSelected()) {
+							System.out.println("Update: TRUE");
+						}
+
+					}
+
+				});
+				DNC.setCellEditor(new ComboBoxCellEditor(deviceNameCombo));
+				NC.setPreferredWidth(5);
+				UpdateColumn.setPreferredWidth(5);
+				UpdateColumn.setCellEditor(new DefaultCellEditor(updateRow));
+			} catch (Exception error) {
+				error.printStackTrace();
+			}
+			Variables.oldDeviceAssocTableEnduserRows = new String[deviceAssocTable
+					.getRowCount()][1];
+			TableRowSorter<TableModel> devAssocSort = new TableRowSorter<TableModel>(
+					deviceAssocTable.getModel());
+			deviceAssocTable.setRowSorter(devAssocSort);
+		}
+
+		public void start() {
+			if (thread == null) {
+				thread = new Thread(this, threadName);
+				thread.start();
+			}
+		}
+	}
+
+	public class lineAssocThread extends Thread {
+		private Thread thread = null;
+		private String threadName;
+
+		lineAssocThread(String name) {
+			threadName = name;
+		}
+
+		public void run() {
+			try {
+				progressBar allDevices = new progressBar();
+				allDevices.setVisible(true);
+				Methods.getLineAssocEndusers();
+				Methods.getNumplanAssoc();
+				allDevices.setVisible(false);
+				// lookupDeviceType(1, 1, "");
+				// lookupDevicepool(1, 1, "");
+				// TODO
+				DefaultTableModel model = new DefaultTableModel(
+						Variables.lineAssocTableRows,
+						Variables.lineAssocTableColumns) {
+
+					boolean[] canEdit = new boolean[] { false, false, true,
+							true, true, true };
+
+					public boolean isCellEditable(int rowIndex, int columnIndex) {
+						return canEdit[columnIndex];
+					}
+
+				};
+				lineAssocTable.setModel(model);
+				TableColumn NC = lineAssocTable.getColumnModel().getColumn(0);
+				TableColumn UpdateColumn = lineAssocTable.getColumnModel()
+						.getColumn(5);
+				TableColumn FNC = lineAssocTable.getColumnModel().getColumn(2);
+				TableColumn LNC = lineAssocTable.getColumnModel().getColumn(3);
+				TableColumn UIDC = lineAssocTable.getColumnModel().getColumn(4);
+				final JComboBox firstnameCombo = new JComboBox(
+						Variables.lineAssocFirstnames);
+				final JComboBox lastnameCombo = new JComboBox(
+						Variables.lineAssocLastnames);
+				final JComboBox useridCombo = new JComboBox(
+						Variables.lineAssocUserids);
+				firstnameCombo.setEditable(true);
+				lastnameCombo.setEditable(true);
+				useridCombo.setEditable(true);
+				final JCheckBox updateRow = new JCheckBox();
+				new S15WorkingBackspace(firstnameCombo);
+				new S15WorkingBackspace(lastnameCombo);
+				new S15WorkingBackspace(useridCombo);
+				updateRow.setSelected(false);
+				final int firstnameCol = 2, lastnameCol = 3, useridCol = 4;
+				if (firstnameCombo.getSelectedIndex() == -1) {
+					firstnameCombo.setSelectedIndex(0);
+				}
+				if (lastnameCombo.getSelectedIndex() == -1) {
+					lastnameCombo.setSelectedIndex(0);
+				}
+				if (useridCombo.getSelectedIndex() == -1) {
+					useridCombo.setSelectedIndex(0);
+				}
+				updateRow.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						if (updateRow.isSelected()) {
+							System.out.println("Update: TRUE");
+						}
+
+					}
+
+				});
+				firstnameCombo.addItemListener(new ItemListener() {
+					public void itemStateChanged(ItemEvent e) {
+						if (e.getStateChange() == ItemEvent.SELECTED) {
+							try {
+								lineAssocTable.getModel().setValueAt(
+										lastnameCombo.getItemAt(firstnameCombo
+												.getSelectedIndex()),
+										lineAssocTable.getSelectedRow(),
+										lastnameCol);
+								lineAssocTable.getModel().setValueAt(
+										useridCombo.getItemAt(firstnameCombo
+												.getSelectedIndex()),
+										lineAssocTable.getSelectedRow(),
+										useridCol);
+							} catch (Exception ex) {
+								ex.printStackTrace();
+							}
+						}
+
+					}
+				});
+				lastnameCombo.addItemListener(new ItemListener() {
+					public void itemStateChanged(ItemEvent e) {
+						if (e.getStateChange() == ItemEvent.SELECTED) {
+							lineAssocTable.getModel().setValueAt(
+									firstnameCombo.getItemAt(lastnameCombo
+											.getSelectedIndex()),
+									lineAssocTable.getSelectedRow(),
+									firstnameCol);
+							lineAssocTable.getModel().setValueAt(
+									useridCombo.getItemAt(lastnameCombo
+											.getSelectedIndex()),
+									lineAssocTable.getSelectedRow(), useridCol);
+						}
+					}
+				});
+				useridCombo.addItemListener(new ItemListener() {
+					public void itemStateChanged(ItemEvent e) {
+						if (e.getStateChange() == ItemEvent.SELECTED) {
+							lineAssocTable.getModel().setValueAt(
+									firstnameCombo.getItemAt(useridCombo
+											.getSelectedIndex()),
+									lineAssocTable.getSelectedRow(),
+									firstnameCol);
+							lineAssocTable.getModel().setValueAt(
+									lastnameCombo.getItemAt(useridCombo
+											.getSelectedIndex()),
+									lineAssocTable.getSelectedRow(),
+									lastnameCol);
+						}
+					}
+				});
+				FNC.setCellEditor(new ComboBoxCellEditor(firstnameCombo));
+				NC.setPreferredWidth(5);
+				UpdateColumn.setPreferredWidth(5);
+				UpdateColumn.setCellEditor(new DefaultCellEditor(updateRow));
+			} catch (Exception error) {
+				error.printStackTrace();
+			}
+			Variables.oldLineAssocTableEnduserRows = new String[lineAssocTable
+					.getRowCount()][4];
+			// for (int i = 0; i < lineAssocTable.getRowCount(); i++) {
+			// Variables.oldLineAssocTableEnduserRows[i][0] = lineAssocTable
+			// .getModel().getValueAt(i, 4).toString();
+			// Variables.oldLineAssocTableEnduserRows[i][1] = lineAssocTable
+			// .getModel().getValueAt(i, 3).toString();
+			// Variables.oldLineAssocTableEnduserRows[i][2] = lineAssocTable
+			// .getModel().getValueAt(i, 2).toString();
+			// Variables.oldLineAssocTableEnduserRows[i][3] = lineAssocTable
+			// .getModel().getValueAt(i, 1).toString();
+			// }
+			TableRowSorter<TableModel> devAssocSort = new TableRowSorter<TableModel>(
+					lineAssocTable.getModel());
+			lineAssocTable.setRowSorter(devAssocSort);
 		}
 
 		public void start() {
@@ -1572,6 +1492,8 @@ public class CMUtilsGUI extends JFrame {
 
 		public void run() {
 			System.out.println("Running new Thread! " + threadName);
+			progressBar updateDevices = new progressBar();
+			updateDevices.setVisible(true);
 			Methods.updateDeviceSetEnduser(
 					Variables.newDeviceTableEnduserRows[num][0], deviceTable
 							.getModel().getValueAt(num, 1).toString());
@@ -1585,7 +1507,7 @@ public class CMUtilsGUI extends JFrame {
 							.getModel().getValueAt(num, 1).toString());
 			Methods.addNumplanDevicemap(Variables.newDeviceTableEnduserRows[num][0]);
 			Methods.addDevicenumplanEnduserNumplanAssoc(Variables.newDeviceTableEnduserRows[num][0]);
-			System.out.println("Done: " + num);
+			updateDevices.setVisible(false);
 		}
 
 		public void start() {
@@ -1609,6 +1531,8 @@ public class CMUtilsGUI extends JFrame {
 
 		public void run() {
 			System.out.println("Running new Thread! " + threadName);
+			progressBar updateDevAssoc = new progressBar();
+			updateDevAssoc.setVisible(true);
 			Methods.updateDeviceSetEnduser(
 					Variables.newDeviceAssocTableEnduserRows[num][0],
 					deviceAssocTable.getModel().getValueAt(num, 1).toString());
@@ -1622,7 +1546,7 @@ public class CMUtilsGUI extends JFrame {
 					deviceAssocTable.getModel().getValueAt(num, 1).toString());
 			Methods.addNumplanDevicemap(Variables.newDeviceAssocTableEnduserRows[num][0]);
 			Methods.addDevicenumplanEnduserNumplanAssoc(Variables.newDeviceAssocTableEnduserRows[num][0]);
-			System.out.println("Done: " + num);
+			updateDevAssoc.setVisible(false);
 		}
 
 		public void start() {
@@ -1642,7 +1566,7 @@ public class CMUtilsGUI extends JFrame {
 			progressBar localw = this;
 			this.a = new JLabel();
 			localw.b = new JProgressBar();
-			localw.setTitle("Processing");
+			localw.setTitle("CMUtils - Processing");
 			localw.setResizable(false);
 			localw.setAlwaysOnTop(true);
 			localw.setDefaultCloseOperation(0);

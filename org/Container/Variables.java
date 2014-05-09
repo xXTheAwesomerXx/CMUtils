@@ -10,6 +10,10 @@ public class Variables {
 	public static boolean connected;
 	public static boolean connectionFailed;
 	public static boolean executeQuery;
+	
+	public static String[] sqlRows;
+	public static String[] sqlRowFields;
+	
 	public static String[] connectionHostnames = new String[0];
 	public static String[] connectionUsernames = new String[0];
 	public static String[] connectionPasswords = new String[0];
@@ -27,6 +31,9 @@ public class Variables {
 	public static String[] phoneAllEndusersLastnames = null;
 	// LineAssocTable
 	public static String[] dnorPatterns = null;
+	public static String[] lineAssocFirstnames = null;
+	public static String[] lineAssocLastnames = null;
+	public static String[] lineAssocUserids = null;
 	// DeviceAssocTable
 	public static String[] devAssocDevicenames = null;
 	public static String[] devAssocFirstnames = null;
@@ -35,6 +42,7 @@ public class Variables {
 	// TableVariables
 	public static String[][] enduserRows;
 	public static String[][] devAssocDeviceRows;
+	public static String[][] lineAssocEnduserRows;
 	
 	public static String[][] oldDeviceTableEnduserRows;
 	public static String[][] newDeviceTableEnduserRows;
@@ -42,13 +50,18 @@ public class Variables {
 	public static String[][] oldDeviceAssocTableEnduserRows;
 	public static String[][] newDeviceAssocTableEnduserRows;
 	
+	public static String[][] oldLineAssocTableEnduserRows;
+	public static String[][] newLineAssocTableEnduserRows;
+	
 	public static String[][] deviceTableRows;
 	public static String[][] lineAssocTableRows;
 	public static String[][] deviceAssocTableRows;
+	public static String[][] sqlTableRows;
 	
 	public static final String[] deviceTableColumns = { "#", "Device Name",
 			"Firstname", "Lastname", "Owner ID", "Description", "Device Type",
 			"Devicepool", "x" };
-	public static final String[] lineAssocTableColumns = { "#", "Pattern" };
+	public static final String[] lineAssocTableColumns = { "#", "Pattern", "Firstname", "Lastname", "Owner ID", "x" };
 	public static final String[] deviceAssocTableColumns = { "#", "Device Name", "Owner ID", "Firstname", "Lastname", "x" };
+	public static String[] sqlTableColumns;
 }

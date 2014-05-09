@@ -13,6 +13,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.swing.JScrollBar;
 
 import org.CMUtils.CMUtilsGUI;
 import org.Container.AXLTrustManager.MyTrustManager;
@@ -77,6 +78,41 @@ public class Methods {
 				break;
 			}
 			list.add(str.substring(start, end));
+			pos = end + closeLen;
+		}
+		if (list.isEmpty()) {
+			return null;
+		}
+		return (String[]) list.toArray(new String[list.size()]);
+	}
+	
+	public static String[] substringsBetween(String str, String open,
+			String close, String deliminator) {
+		if ((str == null) || (open == null) || (close == null)) {
+			return null;
+		}
+		int strLen = str.length();
+		if (strLen == 0) {
+			return null;
+		}
+		int closeLen = close.length();
+		int openLen = open.length();
+		List<String> list = new ArrayList();
+		int pos = 0;
+		while (pos < strLen - closeLen) {
+			int start = str.indexOf(open, pos);
+			if (start < 0) {
+				break;
+			}
+			start += openLen;
+			int end = str.indexOf(close, start);
+			if (end < 0) {
+				break;
+			}
+			if (!str.substring(start, end).contains(deliminator)) {
+				list.add(str.substring(start, end));
+
+			}
 			pos = end + closeLen;
 		}
 		if (list.isEmpty()) {
@@ -490,6 +526,144 @@ public class Methods {
 		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "<sql>DELETE from enduserdevicemap WHERE fkdevice = ( SELECT pkid from device where name = '"
+				+ value1 + "' )</sql>";
+		System.out.println(substringBetween(data, "<sql>", "</sql>"));
+		// data = data
+		// +
+		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
+		data = data
+				+ "</axl:executeSQLUpdate> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
+
+		String header = Methods.getHttpsHeader(data);
+		header = header + data;
+		StringBuffer sb = null;
+		try {
+			AXLTrustManager axl = new AXLTrustManager();
+			// Implement the certificate-related stuffs required for sending
+			// request via https
+			X509TrustManager xtm = axl.new MyTrustManager();
+			TrustManager[] mytm = { xtm };
+			SSLContext ctx = SSLContext.getInstance("SSL");
+			ctx.init(null, mytm, null);
+			SSLSocketFactory sslFact = (SSLSocketFactory) ctx
+					.getSocketFactory();
+			socket = (SSLSocket) sslFact.createSocket(Methods.getKeys("ip"),
+					Integer.parseInt("8443"));
+			in = socket.getInputStream();
+			bArray = new byte[2048];
+			sb = new StringBuffer(2048);
+			int ch = 0;
+			int sum = 0;
+			out = socket.getOutputStream();
+			out.write(header.getBytes());
+			while ((ch = in.read(bArray)) != -1) {
+				sum += ch;
+				sb.append(new String(bArray, 0, ch));
+			}
+			socket.close();
+			string = sb.toString();
+			String replacePhoneName = string.replace("<name/>",
+					"<name>NULL</name>");
+			String replaceFirstName = replacePhoneName.replace("<firstname/>",
+					"<firstname>NULL</firstname>");
+			String replaceLastName = replaceFirstName.replace("<lastname/>",
+					"<lastname>NULL</lastname>");
+			String replaceUserID = replaceLastName.replace("<userid/>",
+					"<userid><NONE></userid>");
+			String replaceDesc = replaceUserID.replace("<description/>",
+					"<description>NULL</description>");
+			String replaceModel = replaceDesc.replace("<tkmodel/>",
+					"<tkmodel>NULL</tkmodel>");
+			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
+					"<fkdevicepool>NULL</fkdevicepool>");
+			String finalString = replaceDevicepool;
+			// System.out.println(finalString);
+			Variables.phoneNames = Methods.substringsBetween(finalString,
+					"<name>", "</name>");
+			Variables.enduserFirstnames = Methods.substringsBetween(
+					finalString, "<firstname>", "</firstname");
+			Variables.enduserLastnames = Methods.substringsBetween(finalString,
+					"<lastname>", "</lastname");
+			Variables.phoneEndusers = Methods.substringsBetween(finalString,
+					"<userid>", "</userid");
+			Variables.phoneDesc = Methods.substringsBetween(finalString,
+					"<description>", "</description");
+			Variables.phoneModel = Methods.substringsBetween(finalString,
+					"<tkmodel>", "</tkmodel");
+			Variables.phoneDevpool = Methods.substringsBetween(finalString,
+					"<fkdevicepool>", "</fkdevicepool");
+			Variables.deviceTableRows = new String[Variables.phoneNames.length][9];
+			for (int i = 0; i < Variables.phoneNames.length; i++) {
+				Variables.deviceTableRows[i][0] = Integer.toString(i + 1);
+				Variables.deviceTableRows[i][1] = Variables.phoneNames[i];
+				Variables.deviceTableRows[i][2] = Variables.enduserFirstnames[i];
+				Variables.deviceTableRows[i][3] = Variables.enduserLastnames[i];
+				Variables.deviceTableRows[i][4] = Variables.phoneEndusers[i];
+				Variables.deviceTableRows[i][5] = Variables.phoneDesc[i];
+				Variables.deviceTableRows[i][6] = Variables.phoneModel[i];
+				Variables.deviceTableRows[i][7] = Variables.phoneDevpool[i];
+				Variables.deviceTableRows[i][8] = "false";
+			}
+		} catch (UnknownHostException e) {
+			System.err.println("Error connecting to host: " + e.getMessage());
+			return false;
+		} catch (IOException ioe) {
+			System.err.println("Error sending/receiving from server: "
+					+ ioe.getMessage());
+			try {
+				if (socket != null) {
+					socket.close();
+				}
+			} catch (Exception exc) {
+				exc.printStackTrace();
+				System.err.println("Error closing connection to server: "
+						+ exc.getMessage());
+			}
+		} catch (Exception ea) {
+			System.err.println("Unknown exception " + ea.getMessage());
+			return false;
+		} finally {
+			try {
+				if (socket != null) {
+					socket.close();
+				}
+			} catch (Exception exc) {
+				exc.printStackTrace();
+				System.err.println("Error closing connection to server: "
+						+ exc.getMessage());
+			}
+		}
+		return true;
+	}
+	
+	//TODO: Add method to remove endusernumplanmap
+	public static boolean removeEnduserNumplanMap(String value1) {
+		String data = null;
+		// String sAXLSOAPRequest = null;
+		// String sAXLRequest = null;
+		String string = null;
+		Socket socket = null;
+		OutputStream out = null;
+		InputStream in = null;
+		byte[] bArray = null;
+		String argument1String = null;
+		String argument2String = null;
+		// TODO: Argument 1 Strings
+		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
+				+ Methods.getKeys("pass"));
+		// Build the HTTPS Header
+		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
+		data = data
+				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
+		data = data
+				+ "<SOAP-ENV:Body> <axl:executeSQLUpdate xmlns:axl=\"http://www.cisco.com/AXL/7.0\" ";
+		data = data
+				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
+		data = data + "sequence=\"1234\">";
+		// data = data +
+		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
+		data = data
+				+ "<sql>DELETE from endusernumplanmap WHERE fkdevice = ( SELECT pkid from device where name = '"
 				+ value1 + "' )</sql>";
 		System.out.println(substringBetween(data, "<sql>", "</sql>"));
 		// data = data
@@ -1159,7 +1333,6 @@ public class Methods {
 		byte[] bArray = null;
 		String condition1String = null;
 		String condition2String = null;
-		// TODO: Argument 1 Strings
 		if (condition1 == 1) {
 			condition1String = "device.name";
 		} else if (condition1 == 2) {
@@ -1249,31 +1422,31 @@ public class Methods {
 			string = sb.toString();
 			// System.out.println("ALL: " + string);
 			String replacePhoneName = string.replace("<devicename/>",
-					"<devicename>NULL</devicename>");
+					"<devicename>N/A</devicename>");
 			String replaceFirstName = replacePhoneName.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastName = replaceFirstName.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String replaceUserID = replaceLastName.replace("<userid/>",
-					"<userid><NONE></userid>");
+					"<userid>N/A</userid>");
 			String replaceDesc = replaceUserID.replace("<desc/>",
-					"<desc>NULL</desc>");
+					"<desc>N/A</desc>");
 			String replaceModel = replaceDesc.replace("<modelname/>",
-					"<modelname>NULL</modelname>");
+					"<modelname>N/A</modelname>");
 			String replaceDevicepool = replaceModel.replace("<devicepool/>",
-					"<devicepool>NULL</devicepool>");
+					"<devicepool>N/A</devicepool>");
 			String finalString = replaceDevicepool;
 			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
 					"<devicename>", "</devicename>");
-			Variables.enduserFirstnames = Methods.substringsBetween(
-					finalString, "<firstname>", "</firstname>");
+			Variables.enduserFirstnames = Methods.substringsBetween(finalString,
+					"<firstname>", "</firstname>");
 			Variables.enduserLastnames = Methods.substringsBetween(finalString,
 					"<lastname>", "</lastname>");
 			Variables.phoneEndusers = Methods.substringsBetween(finalString,
 					"<userid>", "</userid>");
-			Variables.phoneDesc = Methods.substringsBetween(finalString,
-					"<desc>", "</desc>");
+			Variables.phoneDesc = Methods.substringsBetween(finalString, "<desc>",
+					"</desc>");
 			Variables.phoneModel = Methods.substringsBetween(finalString,
 					"<modelname>", "</modelname>");
 			Variables.phoneDevpool = Methods.substringsBetween(finalString,
@@ -1281,7 +1454,9 @@ public class Methods {
 			Variables.deviceTableRows = new String[Variables.phoneNames.length][9];
 			for (int i = 0; i < Variables.phoneNames.length; i++) {
 				Variables.deviceTableRows[i][0] = Integer.toString(i + 1);
-				Variables.deviceTableRows[i][1] = Variables.phoneNames[i];
+				if (!Variables.phoneNames[i].equalsIgnoreCase("N/A")) {
+					Variables.deviceTableRows[i][1] = Variables.phoneNames[i];
+				}
 				Variables.deviceTableRows[i][2] = Variables.enduserFirstnames[i];
 				Variables.deviceTableRows[i][3] = Variables.enduserLastnames[i];
 				Variables.deviceTableRows[i][4] = Variables.phoneEndusers[i];
@@ -1292,6 +1467,9 @@ public class Methods {
 			}
 			CMUtilsGUI.logArea.append("Retrieved "
 					+ Variables.phoneNames.length + " records! \n");
+			// JScrollBar scrollbar =
+			// CMUtilsGUI.logScrollPane.getVerticalScrollBar();
+			// scrollbar.setValue(scrollbar.getMaximum());
 		} catch (UnknownHostException e) {
 			System.err.println("Error connecting to host: " + e.getMessage());
 			return false;
@@ -1412,6 +1590,136 @@ public class Methods {
 			}
 			CMUtilsGUI.logArea.append("Retrieved "
 					+ Variables.dnorPatterns.length + " records! \n");
+			// JScrollBar scrollbar =
+			// CMUtilsGUI.logScrollPane.getVerticalScrollBar();
+			// scrollbar.setValue(scrollbar.getMaximum());
+		} catch (UnknownHostException e) {
+			System.err.println("Error connecting to host: " + e.getMessage());
+			return false;
+		} catch (IOException ioe) {
+			System.err.println("Error sending/receiving from server: "
+					+ ioe.getMessage());
+			try {
+				if (socket != null) {
+					socket.close();
+				}
+			} catch (Exception exc) {
+				exc.printStackTrace();
+				System.err.println("Error closing connection to server: "
+						+ exc.getMessage());
+			}
+		} catch (Exception ea) {
+			System.err.println("Unknown exception " + ea.getMessage());
+			return false;
+		} finally {
+			try {
+				if (socket != null) {
+					socket.close();
+				}
+			} catch (Exception exc) {
+				exc.printStackTrace();
+				System.err.println("Error closing connection to server: "
+						+ exc.getMessage());
+			}
+		}
+		return true;
+	}
+
+	public static boolean getLineAssocEndusers() {
+		String data = null;
+		// String sAXLSOAPRequest = null;
+		// String sAXLRequest = null;
+		String string = null;
+		Socket socket = null;
+		OutputStream out = null;
+		InputStream in = null;
+		byte[] bArray = null;
+		String condition1String = null;
+		String condition2String = null;
+		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
+				+ Methods.getKeys("pass"));
+		// Build the HTTPS Header
+		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
+		data = data
+				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
+		data = data
+				+ "<SOAP-ENV:Body> <axl:executeSQLQuery xmlns:axl=\"http://www.cisco.com/AXL/7.0\" ";
+		data = data
+				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
+		data = data + "sequence=\"1234\">";
+		// data = data +
+		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
+		String sqlString = null;
+		// if (condition1 != 3) {
+		data = data
+				+ "<sql>SELECT enduser.userid AS userid, enduser.firstname AS firstname, enduser.lastname AS lastname FROM enduser WHERE NOT EXISTS ( SELECT * from endusernumplanmap WHERE endusernumplanmap.fkenduser = enduser.pkid )</sql>";
+		sqlString = "SELECT device.name as DeviceName, enduser.firstname as FirstName, enduser.lastname as LastName, enduser.userid as UserID, device.description as Desc, typemodel.name as ModelName, devicepool.name as DevicePool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN typemodel ON device.tkmodel = typemodel.enum LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid WHERE "
+				+ condition1String + " " + condition2String;
+		// } else {
+		// data = data
+		// +
+		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
+		// + condition1String + " " + condition2String+"</sql>";
+		// sqlString = "DEVICES: " +
+		// "SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
+		// + condition1String + " " + condition2String;
+		// }
+		// System.out.println(sqlString);
+		// data = data
+		// +
+		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
+		data = data
+				+ "</axl:executeSQLQuery> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
+
+		String header = Methods.getHttpsHeader(data);
+		header = header + data;
+		StringBuffer sb = null;
+		try {
+			AXLTrustManager axl = new AXLTrustManager();
+			// Implement the certificate-related stuffs required for sending
+			// request via https
+			X509TrustManager xtm = axl.new MyTrustManager();
+			TrustManager[] mytm = { xtm };
+			SSLContext ctx = SSLContext.getInstance("SSL");
+			ctx.init(null, mytm, null);
+			SSLSocketFactory sslFact = (SSLSocketFactory) ctx
+					.getSocketFactory();
+			socket = (SSLSocket) sslFact.createSocket(Methods.getKeys("ip"),
+					Integer.parseInt("8443"));
+			in = socket.getInputStream();
+			bArray = new byte[2048];
+			sb = new StringBuffer(2048);
+			int ch = 0;
+			int sum = 0;
+			out = socket.getOutputStream();
+			out.write(header.getBytes());
+			while ((ch = in.read(bArray)) != -1) {
+				sum += ch;
+				sb.append(new String(bArray, 0, ch));
+			}
+			socket.close();
+			string = sb.toString();
+			// System.out.println("ALL: " + string);
+			String replaceUserid = string.replace("<userid/>",
+					"<userid>NULL</userid>");
+			String replaceFirstname = replaceUserid.replace("<firstname/>",
+					"<firstname>NULL</firstname>");
+			String replaceLastname = replaceFirstname.replace("<lastname/>",
+					"<lastname>NULL</lastname>");
+			String finalString = replaceLastname;
+			Variables.lineAssocUserids = Methods.substringsBetween(finalString,
+					"<userid>", "</userid>");
+			Variables.lineAssocFirstnames = Methods.substringsBetween(
+					finalString, "<firstname>", "</firstname>");
+			Variables.lineAssocLastnames = Methods.substringsBetween(
+					finalString, "<lastname>", "</lastname>");
+			Variables.lineAssocTableRows = new String[Variables.lineAssocUserids.length][5];
+			for (int i = 0; i < Variables.lineAssocUserids.length; i++) {
+				Variables.lineAssocTableRows[i][0] = Integer.toString(i + 1);
+				Variables.lineAssocTableRows[i][2] = Variables.lineAssocUserids[i];
+				Variables.lineAssocTableRows[i][3] = Variables.lineAssocFirstnames[i];
+				Variables.lineAssocTableRows[i][4] = Variables.lineAssocLastnames[i];
+			}
 		} catch (UnknownHostException e) {
 			System.err.println("Error connecting to host: " + e.getMessage());
 			return false;
@@ -1657,6 +1965,9 @@ public class Methods {
 			}
 			CMUtilsGUI.logArea.append("Retrieved "
 					+ Variables.devAssocUserids.length + " records! \n");
+			// JScrollBar scrollbar =
+			// CMUtilsGUI.logScrollPane.getVerticalScrollBar();
+			// scrollbar.setValue(scrollbar.getMaximum());
 		} catch (UnknownHostException e) {
 			System.err.println("Error connecting to host: " + e.getMessage());
 			return false;
@@ -1878,7 +2189,7 @@ public class Methods {
 						+ exc.getMessage());
 			}
 		}
-		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><return>"
+		return "<return>"
 				+ Methods.substringBetween(string, "<return>", "</return>")
 				+ "</return>";
 	}
