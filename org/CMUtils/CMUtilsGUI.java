@@ -12,6 +12,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -55,31 +58,64 @@ public class CMUtilsGUI extends JFrame {
 		phoneThread.start();
 	}
 
-	private void deviceAssocItemActionPerformed(ActionEvent e) {
+	private void enduserAssocItemActionPerformed(ActionEvent e) {
 		if (tabbedPane.getSelectedIndex() != 2) {
 			tabbedPane.setSelectedIndex(2);
-			logArea.append("Set selected view to Associated Devices \n");
+			logArea.append("Set selected view to Associated Endusers \n");
 			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
 					.getVerticalScrollBar();
 			scrollbar.setValue(scrollbar.getMaximum());
 		}
-		devAssocThread phoneThread = new devAssocThread("GAPT");
+		enduserAssocThread phoneThread = new enduserAssocThread("GAPT");
 		phoneThread.start();
 	}
 
 	private void exportItemActionPerformed(ActionEvent e) {
-		if (deviceTable.getRowCount() <= 0) {
-			logArea.append("Table is empty, cannot export table to CSV!");
-			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
-					.getVerticalScrollBar();
-			scrollbar.setValue(scrollbar.getMaximum());
-		} else {
-			ExcelExporter ee = new ExcelExporter(deviceTable, "", false);
-			ee.storeTableAsCSV(new File("database.csv"), deviceTable);
-			logArea.append("Successfully exported table!");
-			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
-					.getVerticalScrollBar();
-			scrollbar.setValue(scrollbar.getMaximum());
+		int currentTab = tabbedPane.getSelectedIndex();
+		if (currentTab == 0) {
+			if (deviceTable.getRowCount() <= 0) {
+				logArea.append("Table is empty, cannot export table to CSV! \n");
+				JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+						.getVerticalScrollBar();
+				scrollbar.setValue(scrollbar.getMaximum());
+			} else {
+				ExcelExporter ee = new ExcelExporter(deviceTable, "", false);
+				ee.storeTableAsCSV(new File("device_database.csv"), deviceTable);
+				logArea.append("Successfully exported table! \n");
+				JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+						.getVerticalScrollBar();
+				scrollbar.setValue(scrollbar.getMaximum());
+			}
+		} else if (currentTab == 1) {
+			if (lineAssocTable.getRowCount() <= 0) {
+				logArea.append("Table is empty, cannot export table to CSV! \n");
+				JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+						.getVerticalScrollBar();
+				scrollbar.setValue(scrollbar.getMaximum());
+			} else {
+				ExcelExporter ee = new ExcelExporter(lineAssocTable, "", false);
+				ee.storeTableAsCSV(new File("lineassoc_database.csv"),
+						lineAssocTable);
+				logArea.append("Successfully exported table! \n");
+				JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+						.getVerticalScrollBar();
+				scrollbar.setValue(scrollbar.getMaximum());
+			}
+		} else if (currentTab == 2) {
+			if (enduserAssocTable.getRowCount() <= 0) {
+				logArea.append("Table is empty, cannot export table to CSV! \n");
+				JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+						.getVerticalScrollBar();
+				scrollbar.setValue(scrollbar.getMaximum());
+			} else {
+				ExcelExporter ee = new ExcelExporter(enduserAssocTable, "", false);
+				ee.storeTableAsCSV(new File("enduserAssoc_database.csv"),
+						enduserAssocTable);
+				logArea.append("Successfully exported table! \n");
+				JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+						.getVerticalScrollBar();
+				scrollbar.setValue(scrollbar.getMaximum());
+			}
 		}
 	}
 
@@ -213,7 +249,7 @@ public class CMUtilsGUI extends JFrame {
 			}
 		} else if (tabbedPane.getSelectedIndex() == 2) { // TODO: Finish Device
 															// Assoc Update
-			int n = JOptionPane.showConfirmDialog(deviceAssocTable,
+			int n = JOptionPane.showConfirmDialog(enduserAssocTable,
 					"Are you sure you'd like to update these user(s)?",
 					"Update user", JOptionPane.YES_NO_OPTION);
 
@@ -221,21 +257,21 @@ public class CMUtilsGUI extends JFrame {
 				// updateDeviceSetEnduser(arg1, arg2);
 				// addEnduserDeviceMap(arg1, arg2);
 				try {
-					Variables.newDeviceAssocTableEnduserRows = new String[deviceAssocTable
+					Variables.newenduserAssocTableEnduserRows = new String[enduserAssocTable
 							.getRowCount()][1];
-					for (int i = 0; i < deviceAssocTable.getRowCount(); i++) {
-						if (deviceAssocTable.getModel().getValueAt(i, 2)
+					for (int i = 0; i < enduserAssocTable.getRowCount(); i++) {
+						if (enduserAssocTable.getModel().getValueAt(i, 2)
 								.toString() != null) {
-							Variables.newDeviceAssocTableEnduserRows[i][0] = deviceAssocTable
+							Variables.newenduserAssocTableEnduserRows[i][0] = enduserAssocTable
 									.getModel().getValueAt(i, 2).toString();
 						} else {
-							Variables.newDeviceAssocTableEnduserRows[i][0] = "NULL";
+							Variables.newenduserAssocTableEnduserRows[i][0] = "NULL";
 						}
-						if (deviceAssocTable.getModel().getValueAt(i, 5) != null) {
-							if (deviceAssocTable.getModel().getValueAt(i, 5)
+						if (enduserAssocTable.getModel().getValueAt(i, 5) != null) {
+							if (enduserAssocTable.getModel().getValueAt(i, 5)
 									.toString().equalsIgnoreCase("true")) {
-								updateDeviceAssocThread newUpdateThread = new updateDeviceAssocThread(
-										deviceAssocTable.getModel()
+								updateenduserAssocThread newUpdateThread = new updateenduserAssocThread(
+										enduserAssocTable.getModel()
 												.getValueAt(i, 0).toString(), i);
 								newUpdateThread.start();
 							}
@@ -261,7 +297,7 @@ public class CMUtilsGUI extends JFrame {
 		allPhonesItem = new JMenuItem();
 		findPhonesMenu = new JMenu();
 		lineAssocItem = new JMenuItem();
-		deviceAssocItem = new JMenuItem();
+		enduserAssocItem = new JMenuItem();
 		exportItem = new JMenuItem();
 		exitItem = new JMenuItem();
 		helpMenu = new JMenu();
@@ -279,8 +315,8 @@ public class CMUtilsGUI extends JFrame {
 		deviceTable = new JTable();
 		lineAssocPane = new JScrollPane();
 		lineAssocTable = new JTable();
-		deviceAssocPane = new JScrollPane();
-		deviceAssocTable = new JTable();
+		enduserAssocPane = new JScrollPane();
+		enduserAssocTable = new JTable();
 		logPanel = new JPanel();
 		logScrollPane = new JScrollPane();
 		logArea = new JTextArea();
@@ -322,15 +358,15 @@ public class CMUtilsGUI extends JFrame {
 					});
 					findPhonesMenu.add(lineAssocItem);
 
-					// ---- deviceAssocItem ----
-					deviceAssocItem.setText("Device Association");
-					deviceAssocItem.addActionListener(new ActionListener() {
+					// ---- enduserAssocItem ----
+					enduserAssocItem.setText("Enduser Association");
+					enduserAssocItem.addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
-							deviceAssocItemActionPerformed(e);
+							enduserAssocItemActionPerformed(e);
 						}
 					});
-					findPhonesMenu.add(deviceAssocItem);
+					findPhonesMenu.add(enduserAssocItem);
 				}
 				fileMenu.add(findPhonesMenu);
 				fileMenu.addSeparator();
@@ -616,12 +652,12 @@ public class CMUtilsGUI extends JFrame {
 			}
 			tabbedPane.addTab("Line Association", lineAssocPane);
 
-			// ======== deviceAssocPane ========
+			// ======== enduserAssocPane ========
 			{
-				// ---- deviceAssocTable ----
-				deviceAssocTable.setModel(new DefaultTableModel(
-						Variables.deviceAssocTableRows,
-						Variables.deviceAssocTableColumns) {
+				// ---- enduserAssocTable ----
+				enduserAssocTable.setModel(new DefaultTableModel(
+						Variables.enduserAssocTableRows,
+						Variables.enduserAssocTableColumns) {
 					private static final long serialVersionUID = -6396300478056746940L;
 					Class[] columnTypes = { String.class, String.class,
 							JComboBox.class, JComboBox.class, JComboBox.class,
@@ -636,10 +672,10 @@ public class CMUtilsGUI extends JFrame {
 						return this.columnEditable[columnIndex];
 					}
 				});
-				TableColumnModel cm = this.deviceAssocTable.getColumnModel();
+				TableColumnModel cm = this.enduserAssocTable.getColumnModel();
 				TableColumn tc = null;
-				for (int i = 0; i < deviceAssocTable.getColumnCount(); i++) {
-					tc = deviceAssocTable.getColumnModel().getColumn(i);
+				for (int i = 0; i < enduserAssocTable.getColumnCount(); i++) {
+					tc = enduserAssocTable.getColumnModel().getColumn(i);
 					if (i == 1) {
 						tc.setWidth(1);
 						;
@@ -647,11 +683,11 @@ public class CMUtilsGUI extends JFrame {
 						tc.setWidth(80);
 					}
 				}
-				deviceAssocTable
+				enduserAssocTable
 						.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-				deviceAssocPane.setViewportView(deviceAssocTable);
+				enduserAssocPane.setViewportView(enduserAssocTable);
 			}
-			tabbedPane.addTab("Device Association", deviceAssocPane);
+			tabbedPane.addTab("Enduser Association", enduserAssocPane);
 		}
 
 		// ======== logPanel ========
@@ -769,7 +805,7 @@ public class CMUtilsGUI extends JFrame {
 	private JMenuItem allPhonesItem;
 	private JMenu findPhonesMenu;
 	private JMenuItem lineAssocItem;
-	private JMenuItem deviceAssocItem;
+	private JMenuItem enduserAssocItem;
 	private JMenuItem exportItem;
 	private JMenuItem sqlMenuItem;
 	private JMenuItem exitItem;
@@ -787,8 +823,8 @@ public class CMUtilsGUI extends JFrame {
 	private JTable deviceTable;
 	public static JScrollPane lineAssocPane;
 	private JTable lineAssocTable;
-	public static JScrollPane deviceAssocPane;
-	private JTable deviceAssocTable;
+	public static JScrollPane enduserAssocPane;
+	private JTable enduserAssocTable;
 	private JPanel logPanel;
 	public static JScrollPane logScrollPane;
 	public static JTextArea logArea;
@@ -1108,12 +1144,27 @@ public class CMUtilsGUI extends JFrame {
 				TableColumn NC = deviceTable.getColumnModel().getColumn(0);
 				TableColumn UpdateColumn = deviceTable.getColumnModel()
 						.getColumn(8);
+				// TODO: Change arrays to lists
+				List<String> firstnameList = new ArrayList<String>();
+				List<String> lastnameList = new ArrayList<String>();
+				List<String> useridList = new ArrayList<String>();
+				// firstnameList.add(-1, "Default");
+				// lastnameList.add(-1, "Default");
+				// useridList.add(-1, "Default");
+				firstnameList.add(0, "Default");
+				lastnameList.add(0, "Default");
+				useridList.add(0, "Default");
+				for (int i = 0; i < Variables.phoneAllEndusersFirstnames.length; i++) {
+					firstnameList.add(Variables.phoneAllEndusersFirstnames[i]);
+					lastnameList.add(Variables.phoneAllEndusersLastnames[i]);
+					useridList.add(Variables.phoneAllEndusersIDs[i]);
+				}
 				final JComboBox firstnameCombo = new JComboBox(
-						Variables.phoneAllEndusersFirstnames);
+						firstnameList.toArray());
 				final JComboBox lastnameCombo = new JComboBox(
-						Variables.phoneAllEndusersLastnames);
+						lastnameList.toArray());
 				final JComboBox useridCombo = new JComboBox(
-						Variables.phoneAllEndusersIDs);
+						useridList.toArray());
 				final JCheckBox updateRow = new JCheckBox();
 				firstnameCombo.setEditable(true);
 				lastnameCombo.setEditable(true);
@@ -1223,8 +1274,6 @@ public class CMUtilsGUI extends JFrame {
 			for (int i = 0; i < Variables.phoneNames.length; i++) {
 				Variables.oldDeviceTableEnduserRows[i][0] = deviceTable
 						.getModel().getValueAt(i, 4).toString();
-				System.out.println(deviceTable.getModel().getValueAt(i, 4)
-						.toString());
 				Variables.oldDeviceTableEnduserRows[i][1] = deviceTable
 						.getModel().getValueAt(i, 3).toString();
 				Variables.oldDeviceTableEnduserRows[i][2] = deviceTable
@@ -1245,11 +1294,11 @@ public class CMUtilsGUI extends JFrame {
 		}
 	}
 
-	public class devAssocThread extends Thread {
+	public class enduserAssocThread extends Thread {
 		private Thread thread = null;
 		private String threadName;
 
-		devAssocThread(String name) {
+		enduserAssocThread(String name) {
 			threadName = name;
 		}
 
@@ -1257,15 +1306,15 @@ public class CMUtilsGUI extends JFrame {
 			try {
 				progressBar allDevices = new progressBar();
 				allDevices.setVisible(true);
-				Methods.getDeviceAssoc();
-				Methods.getDeviceAssocDevices();
+				Methods.getEnduserAssoc();
+				Methods.getEnduserAssocDevices();
 				allDevices.setVisible(false);
 				// lookupDeviceType(1, 1, "");
 				// lookupDevicepool(1, 1, "");
 				// TODO
 				DefaultTableModel model = new DefaultTableModel(
-						Variables.deviceAssocTableRows,
-						Variables.deviceAssocTableColumns) {
+						Variables.enduserAssocTableRows,
+						Variables.enduserAssocTableColumns) {
 
 					boolean[] canEdit = new boolean[] { false, true, false,
 							false, false, true };
@@ -1275,11 +1324,11 @@ public class CMUtilsGUI extends JFrame {
 					}
 
 				};
-				deviceAssocTable.setModel(model);
-				TableColumn NC = deviceAssocTable.getColumnModel().getColumn(0);
-				TableColumn UpdateColumn = deviceAssocTable.getColumnModel()
+				enduserAssocTable.setModel(model);
+				TableColumn NC = enduserAssocTable.getColumnModel().getColumn(0);
+				TableColumn UpdateColumn = enduserAssocTable.getColumnModel()
 						.getColumn(5);
-				TableColumn DNC = deviceAssocTable.getColumnModel()
+				TableColumn DNC = enduserAssocTable.getColumnModel()
 						.getColumn(1);
 				final JComboBox deviceNameCombo = new JComboBox(
 						Variables.devAssocDevicenames);
@@ -1305,11 +1354,11 @@ public class CMUtilsGUI extends JFrame {
 			} catch (Exception error) {
 				error.printStackTrace();
 			}
-			Variables.oldDeviceAssocTableEnduserRows = new String[deviceAssocTable
+			Variables.oldenduserAssocTableEnduserRows = new String[enduserAssocTable
 					.getRowCount()][1];
 			TableRowSorter<TableModel> devAssocSort = new TableRowSorter<TableModel>(
-					deviceAssocTable.getModel());
-			deviceAssocTable.setRowSorter(devAssocSort);
+					enduserAssocTable.getModel());
+			enduserAssocTable.setRowSorter(devAssocSort);
 		}
 
 		public void start() {
@@ -1518,13 +1567,13 @@ public class CMUtilsGUI extends JFrame {
 		}
 	}
 
-	public class updateDeviceAssocThread extends Thread {
+	public class updateenduserAssocThread extends Thread {
 		private Thread thread = null;
 		private String threadName;
 		private String[] args;
 		private int num;
 
-		updateDeviceAssocThread(String name, int number) {
+		updateenduserAssocThread(String name, int number) {
 			threadName = name;
 			num = number;
 		}
@@ -1534,18 +1583,18 @@ public class CMUtilsGUI extends JFrame {
 			progressBar updateDevAssoc = new progressBar();
 			updateDevAssoc.setVisible(true);
 			Methods.updateDeviceSetEnduser(
-					Variables.newDeviceAssocTableEnduserRows[num][0],
-					deviceAssocTable.getModel().getValueAt(num, 1).toString());
+					Variables.newenduserAssocTableEnduserRows[num][0],
+					enduserAssocTable.getModel().getValueAt(num, 1).toString());
 			// Methods.removeEnduserDeviceMap(Variables.oldDeviceTableEnduserRows[num][3]);
 			Methods.addEnduserDeviceMap(
-					Variables.newDeviceAssocTableEnduserRows[num][0],
-					deviceAssocTable.getModel().getValueAt(num, 1).toString());
-			Methods.addNumplan(Variables.newDeviceAssocTableEnduserRows[num][0]);
+					Variables.newenduserAssocTableEnduserRows[num][0],
+					enduserAssocTable.getModel().getValueAt(num, 1).toString());
+			Methods.addNumplan(Variables.newenduserAssocTableEnduserRows[num][0]);
 			Methods.updatePrimaryExtension(
-					Variables.newDeviceAssocTableEnduserRows[num][0],
-					deviceAssocTable.getModel().getValueAt(num, 1).toString());
-			Methods.addNumplanDevicemap(Variables.newDeviceAssocTableEnduserRows[num][0]);
-			Methods.addDevicenumplanEnduserNumplanAssoc(Variables.newDeviceAssocTableEnduserRows[num][0]);
+					Variables.newenduserAssocTableEnduserRows[num][0],
+					enduserAssocTable.getModel().getValueAt(num, 1).toString());
+			Methods.addNumplanDevicemap(Variables.newenduserAssocTableEnduserRows[num][0]);
+			Methods.addDevicenumplanEnduserNumplanAssoc(Variables.newenduserAssocTableEnduserRows[num][0]);
 			updateDevAssoc.setVisible(false);
 		}
 

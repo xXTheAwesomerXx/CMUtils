@@ -280,19 +280,19 @@ public class Methods {
 			socket.close();
 			string = sb.toString();
 			String replacePhoneName = string.replace("<name/>",
-					"<name>NULL</name>");
+					"<name>N/A</name>");
 			String replaceFirstName = replacePhoneName.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastName = replaceFirstName.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String replaceUserID = replaceLastName.replace("<userid/>",
 					"<userid><NONE></userid>");
 			String replaceDesc = replaceUserID.replace("<description/>",
-					"<description>NULL</description>");
+					"<description>N/A</description>");
 			String replaceModel = replaceDesc.replace("<tkmodel/>",
-					"<tkmodel>NULL</tkmodel>");
+					"<tkmodel>N/A</tkmodel>");
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
-					"<fkdevicepool>NULL</fkdevicepool>");
+					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
 			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
@@ -426,19 +426,19 @@ public class Methods {
 			socket.close();
 			string = sb.toString();
 			String replacePhoneName = string.replace("<name/>",
-					"<name>NULL</name>");
+					"<name>N/A</name>");
 			String replaceFirstName = replacePhoneName.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastName = replaceFirstName.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String replaceUserID = replaceLastName.replace("<userid/>",
 					"<userid><NONE></userid>");
 			String replaceDesc = replaceUserID.replace("<description/>",
-					"<description>NULL</description>");
+					"<description>N/A</description>");
 			String replaceModel = replaceDesc.replace("<tkmodel/>",
-					"<tkmodel>NULL</tkmodel>");
+					"<tkmodel>N/A</tkmodel>");
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
-					"<fkdevicepool>NULL</fkdevicepool>");
+					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
 			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
@@ -563,19 +563,19 @@ public class Methods {
 			socket.close();
 			string = sb.toString();
 			String replacePhoneName = string.replace("<name/>",
-					"<name>NULL</name>");
+					"<name>N/A</name>");
 			String replaceFirstName = replacePhoneName.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastName = replaceFirstName.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String replaceUserID = replaceLastName.replace("<userid/>",
 					"<userid><NONE></userid>");
 			String replaceDesc = replaceUserID.replace("<description/>",
-					"<description>NULL</description>");
+					"<description>N/A</description>");
 			String replaceModel = replaceDesc.replace("<tkmodel/>",
-					"<tkmodel>NULL</tkmodel>");
+					"<tkmodel>N/A</tkmodel>");
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
-					"<fkdevicepool>NULL</fkdevicepool>");
+					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
 			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
@@ -701,19 +701,19 @@ public class Methods {
 			socket.close();
 			string = sb.toString();
 			String replacePhoneName = string.replace("<name/>",
-					"<name>NULL</name>");
+					"<name>N/A</name>");
 			String replaceFirstName = replacePhoneName.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastName = replaceFirstName.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String replaceUserID = replaceLastName.replace("<userid/>",
 					"<userid><NONE></userid>");
 			String replaceDesc = replaceUserID.replace("<description/>",
-					"<description>NULL</description>");
+					"<description>N/A</description>");
 			String replaceModel = replaceDesc.replace("<tkmodel/>",
-					"<tkmodel>NULL</tkmodel>");
+					"<tkmodel>N/A</tkmodel>");
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
-					"<fkdevicepool>NULL</fkdevicepool>");
+					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
 			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
@@ -836,19 +836,19 @@ public class Methods {
 			socket.close();
 			string = sb.toString();
 			String replacePhoneName = string.replace("<name/>",
-					"<name>NULL</name>");
+					"<name>N/A</name>");
 			String replaceFirstName = replacePhoneName.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastName = replaceFirstName.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String replaceUserID = replaceLastName.replace("<userid/>",
 					"<userid><NONE></userid>");
 			String replaceDesc = replaceUserID.replace("<description/>",
-					"<description>NULL</description>");
+					"<description>N/A</description>");
 			String replaceModel = replaceDesc.replace("<tkmodel/>",
-					"<tkmodel>NULL</tkmodel>");
+					"<tkmodel>N/A</tkmodel>");
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
-					"<fkdevicepool>NULL</fkdevicepool>");
+					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
 			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
@@ -973,19 +973,19 @@ public class Methods {
 			socket.close();
 			string = sb.toString();
 			String replacePhoneName = string.replace("<name/>",
-					"<name>NULL</name>");
+					"<name>N/A</name>");
 			String replaceFirstName = replacePhoneName.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastName = replaceFirstName.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String replaceUserID = replaceLastName.replace("<userid/>",
 					"<userid><NONE></userid>");
 			String replaceDesc = replaceUserID.replace("<description/>",
-					"<description>NULL</description>");
+					"<description>N/A</description>");
 			String replaceModel = replaceDesc.replace("<tkmodel/>",
-					"<tkmodel>NULL</tkmodel>");
+					"<tkmodel>N/A</tkmodel>");
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
-					"<fkdevicepool>NULL</fkdevicepool>");
+					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
 			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
@@ -1110,19 +1110,19 @@ public class Methods {
 			socket.close();
 			string = sb.toString();
 			String replacePhoneName = string.replace("<name/>",
-					"<name>NULL</name>");
+					"<name>N/A</name>");
 			String replaceFirstName = replacePhoneName.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastName = replaceFirstName.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String replaceUserID = replaceLastName.replace("<userid/>",
 					"<userid><NONE></userid>");
 			String replaceDesc = replaceUserID.replace("<description/>",
-					"<description>NULL</description>");
+					"<description>N/A</description>");
 			String replaceModel = replaceDesc.replace("<tkmodel/>",
-					"<tkmodel>NULL</tkmodel>");
+					"<tkmodel>N/A</tkmodel>");
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
-					"<fkdevicepool>NULL</fkdevicepool>");
+					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
 			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
@@ -1248,19 +1248,19 @@ public class Methods {
 			socket.close();
 			string = sb.toString();
 			String replacePhoneName = string.replace("<name/>",
-					"<name>NULL</name>");
+					"<name>N/A</name>");
 			String replaceFirstName = replacePhoneName.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastName = replaceFirstName.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String replaceUserID = replaceLastName.replace("<userid/>",
 					"<userid><NONE></userid>");
 			String replaceDesc = replaceUserID.replace("<description/>",
-					"<description>NULL</description>");
+					"<description>N/A</description>");
 			String replaceModel = replaceDesc.replace("<tkmodel/>",
-					"<tkmodel>NULL</tkmodel>");
+					"<tkmodel>N/A</tkmodel>");
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
-					"<fkdevicepool>NULL</fkdevicepool>");
+					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
 			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
@@ -1375,7 +1375,7 @@ public class Methods {
 		data = data
 				+ "<sql>SELECT device.name as DeviceName, enduser.firstname as FirstName, enduser.lastname as LastName, enduser.userid as UserID, device.description as Desc, typemodel.name as ModelName, devicepool.name as DevicePool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN typemodel ON device.tkmodel = typemodel.enum LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid WHERE "
 				+ condition1String + " " + condition2String + "</sql>";
-		System.out.println(substringBetween(data, "<sql>", "</sql>"));
+		//System.out.println(substringBetween(data, "<sql>", "</sql>"));
 		// } else {
 		// data = data
 		// +
@@ -1578,7 +1578,7 @@ public class Methods {
 			string = sb.toString();
 			// System.out.println("ALL: " + string);
 			String replaceDnorPattern = string.replace("<ext/>",
-					"<ext>NULL</ext>");
+					"<ext>N/A</ext>");
 			String finalString = replaceDnorPattern;
 			// System.out.println(finalString);
 			Variables.dnorPatterns = Methods.substringsBetween(finalString,
@@ -1701,11 +1701,11 @@ public class Methods {
 			string = sb.toString();
 			// System.out.println("ALL: " + string);
 			String replaceUserid = string.replace("<userid/>",
-					"<userid>NULL</userid>");
+					"<userid>N/A</userid>");
 			String replaceFirstname = replaceUserid.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastname = replaceFirstname.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String finalString = replaceLastname;
 			Variables.lineAssocUserids = Methods.substringsBetween(finalString,
 					"<userid>", "</userid>");
@@ -1752,7 +1752,7 @@ public class Methods {
 		return true;
 	}
 
-	public static boolean getDeviceAssocDevices() {
+	public static boolean getEnduserAssocDevices() {
 		String data = null;
 		// String sAXLSOAPRequest = null;
 		// String sAXLRequest = null;
@@ -1828,7 +1828,7 @@ public class Methods {
 			string = sb.toString();
 			// System.out.println("ALL: " + string);
 			String replaceDevicename = string.replace("<devicename/>",
-					"<devicename>NULL</devicename>");
+					"<devicename>N/A</devicename>");
 			String finalString = replaceDevicename;
 			Variables.devAssocDevicenames = Methods.substringsBetween(
 					finalString, "<devicename>", "</devicename>");
@@ -1868,7 +1868,7 @@ public class Methods {
 		return true;
 	}
 
-	public static boolean getDeviceAssoc() {
+	public static boolean getEnduserAssoc() {
 		String data = null;
 		// String sAXLSOAPRequest = null;
 		// String sAXLRequest = null;
@@ -1944,11 +1944,11 @@ public class Methods {
 			string = sb.toString();
 			// System.out.println("ALL: " + string);
 			String replaceUserid = string.replace("<userid/>",
-					"<userid>NULL</userid>");
+					"<userid>N/A</userid>");
 			String replaceFirstname = replaceUserid.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastname = replaceFirstname.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String finalString = replaceLastname;
 			Variables.devAssocUserids = Methods.substringsBetween(finalString,
 					"<userid>", "</userid>");
@@ -1956,12 +1956,12 @@ public class Methods {
 					finalString, "<firstname>", "</firstname>");
 			Variables.devAssocLastnames = Methods.substringsBetween(
 					finalString, "<lastname>", "</lastname>");
-			Variables.deviceAssocTableRows = new String[Variables.devAssocUserids.length][5];
+			Variables.enduserAssocTableRows = new String[Variables.devAssocUserids.length][5];
 			for (int i = 0; i < Variables.devAssocUserids.length; i++) {
-				Variables.deviceAssocTableRows[i][0] = Integer.toString(i + 1);
-				Variables.deviceAssocTableRows[i][2] = Variables.devAssocUserids[i];
-				Variables.deviceAssocTableRows[i][3] = Variables.devAssocFirstnames[i];
-				Variables.deviceAssocTableRows[i][4] = Variables.devAssocLastnames[i];
+				Variables.enduserAssocTableRows[i][0] = Integer.toString(i + 1);
+				Variables.enduserAssocTableRows[i][2] = Variables.devAssocUserids[i];
+				Variables.enduserAssocTableRows[i][3] = Variables.devAssocFirstnames[i];
+				Variables.enduserAssocTableRows[i][4] = Variables.devAssocLastnames[i];
 			}
 			CMUtilsGUI.logArea.append("Retrieved "
 					+ Variables.devAssocUserids.length + " records! \n");
@@ -2055,11 +2055,11 @@ public class Methods {
 			socket.close();
 			string = sb.toString();
 			String replaceUserID = string.replace("<userid/>",
-					"<userid>NULL</userid>");
+					"<userid>N/A</userid>");
 			String replaceFirstname = replaceUserID.replace("<firstname/>",
-					"<firstname>NULL</firstname>");
+					"<firstname>N/A</firstname>");
 			String replaceLastname = replaceFirstname.replace("<lastname/>",
-					"<lastname>NULL</lastname>");
+					"<lastname>N/A</lastname>");
 			String finalString = replaceLastname;
 			// System.out.println(finalString);
 			Variables.phoneAllEndusersIDs = Methods.substringsBetween(
@@ -2190,7 +2190,7 @@ public class Methods {
 			}
 		}
 		return "<return>"
-				+ Methods.substringBetween(string, "<return>", "</return>")
+				+ Methods.substringBetween(string, "<return>", "</return>").replaceAll("></", ">N/A</").replaceAll("N/A</row>", "</row>")
 				+ "</return>";
 	}
 

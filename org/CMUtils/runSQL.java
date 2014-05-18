@@ -1,44 +1,194 @@
 package org.CMUtils;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.StringReader;
+import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
-import javax.swing.*;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.GroupLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.LayoutStyle;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.Container.Methods;
 import org.Container.Variables;
-import org.jdom2.Document;
-import org.jdom2.input.SAXBuilder;
+import org.w3c.dom.Document;
 
-/*
- * Created by JFormDesigner on Mon Apr 28 00:45:29 EDT 2014
- */
-
-/**
- * @author Hamant Joucoo
- */
 public class runSQL extends JFrame {
+	private static final long serialVersionUID = 3107197191874268418L;
 	public runSQL() {
 		initComponents();
 	}
 
+	@SuppressWarnings("static-access")
 	private void sqlFieldKeyPressed(KeyEvent p) {
 		if (p.getKeyCode() == p.VK_ENTER) {
 			try {
 				String xml = Methods.executeSQLSelect(sqlField.getText()
 						.toString());
-				Variables.sqlRows = Methods.substringsBetween(xml, "<row>",
-						"</row>");
-				for (int i = 0; i < Variables.sqlRows.length; i++) {
+				String xString = null;
+				if (xml.equalsIgnoreCase("<return>null</return>")) {
+					JOptionPane
+							.showMessageDialog(
+									this,
+									"Query returned no values \n Please Check query syntax!",
+									"CMUtls - SQL Syntax Error",
+									JOptionPane.ERROR_MESSAGE);
+				} else {
+					try {
+						Document doc = DocumentBuilderFactory
+								.newInstance()
+								.newDocumentBuilder()
+								.parse(new ByteArrayInputStream(xml.getBytes()));
+						TransformerFactory tf = TransformerFactory
+								.newInstance();
+						Transformer t = tf.newTransformer();
+						t.setOutputProperty(OutputKeys.METHOD, "html");
+						ByteArrayOutputStream os = new ByteArrayOutputStream();
+						t.transform(new DOMSource(doc), new StreamResult(os));
+						xString = new String(os.toByteArray(), "UTF-8");
+						xString = xString.replaceAll("(\\r|\\n)", "");
+						System.out.println(xString);
+						Variables.sqlRows = Methods.substringsBetween(xString,
+								"<row>", "</row>");
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
 					Variables.sqlRowFields = Methods.substringsBetween(
 							Variables.sqlRows[0], "<", ">", "/");
+					Variables.sqlTableColumns = new String[Variables.sqlRowFields.length];
+					for (int x = 0; x < Variables.sqlRowFields.length; x++) {
+						Variables.sqlTableColumns[x] = Variables.sqlRowFields[x];
+						Variables.sqlTableRows = new String[Variables.sqlRows.length][Variables.sqlRowFields.length];
+					}
+					for (int y = 0; y < Variables.sqlRows.length; y++) {
+						for (int g = 0; g < Variables.sqlRowFields.length; g++) {
+							Variables.sqlTableRows[y][g] = Methods
+									.substringBetween(Variables.sqlRows[y], "<"
+											+ Variables.sqlRowFields[g] + ">",
+											"</" + Variables.sqlRowFields[g]
+													+ ">");
+						}
+					}
+					resultsTable.setModel(new DefaultTableModel(
+							Variables.sqlTableRows, Variables.sqlTableColumns) {
+						private static final long serialVersionUID = -6396300478056746940L;
+						boolean[] columnEditable = new boolean[6];
+
+						public boolean isCellEditable(int rowIndex,
+								int columnIndex) {
+							return this.columnEditable[columnIndex];
+						}
+					});
+					TableColumn tc = null;
+					for (int i = 0; i < resultsTable.getColumnCount(); i++) {
+						tc = resultsTable.getColumnModel().getColumn(i);
+						if (i == 1) {
+							tc.setWidth(1);
+							;
+						} else {
+							tc.setWidth(80);
+						}
+					}
+					TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(
+							resultsTable.getModel());
+					resultsTable.setRowSorter(sorter);
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void excecuteButtonActionPerformed(ActionEvent e) {
+		try {
+			String xml = Methods
+					.executeSQLSelect(sqlField.getText().toString());
+			String xString = null;
+			Variables.sqlRows = Methods.substringsBetween(xml, "<row>",
+					"</row>");
+			System.out.println(xml);
+			if (xml.equalsIgnoreCase("<return>null</return>")) {
+				JOptionPane
+						.showMessageDialog(
+								this,
+								"Query returned no values \n Please Check query syntax!",
+								"CMUtls - SQL Syntax Error",
+								JOptionPane.ERROR_MESSAGE);
+			} else {
+				try {
+					Document doc = DocumentBuilderFactory.newInstance()
+							.newDocumentBuilder()
+							.parse(new ByteArrayInputStream(xml.getBytes()));
+					TransformerFactory tf = TransformerFactory.newInstance();
+					Transformer t = tf.newTransformer();
+					t.setOutputProperty(OutputKeys.METHOD, "html");
+					ByteArrayOutputStream os = new ByteArrayOutputStream();
+					t.transform(new DOMSource(doc), new StreamResult(os));
+					xString = new String(os.toByteArray(), "UTF-8");
+					System.out.println(xString);
+				} catch (Exception ex) {
+					// TODO Auto-generated catch block
+					ex.printStackTrace();
+				}
+				// for (int i = 0; i < Variables.sqlRows.length; i++) {
+				// if (Variables.sqlRows[i].contains("/>")) {
+				// while (Variables.sqlRows[i].contains("/>")) {
+				// System.out.println("Row" + i + ": "
+				// + Variables.sqlRows[i]);
+				// Variables.sqlRows[i] = Variables.sqlRows[i]
+				// .replace(
+				// Methods.substringBetween(
+				// Variables.sqlRows[i],
+				// "<", "/>"),
+				// "<"
+				// + Methods
+				// .substringBetween(
+				// Variables.sqlRows[i],
+				// "<",
+				// "/>")
+				// + ">null</"
+				// + Methods
+				// .substringBetween(
+				// Variables.sqlRows[i],
+				// "<",
+				// "/>")
+				// + ">");
+				// Variables.sqlRows[i] = Variables.sqlRows[i]
+				// .replace("<<", "<");
+				// Variables.sqlRows[i] = Variables.sqlRows[i]
+				// .replace(">/>", ">");
+				// }
+				// }
+				// System.out.println("Row" + i + ": "
+				// / + Variables.sqlRows[i]);
+				Variables.sqlRowFields = Methods.substringsBetween(
+						Variables.sqlRows[0], "<", ">", "/");
+				// }
 				Variables.sqlTableColumns = new String[Variables.sqlRowFields.length];
 				for (int x = 0; x < Variables.sqlRowFields.length; x++) {
 					Variables.sqlTableColumns[x] = Variables.sqlRowFields[x];
@@ -75,58 +225,7 @@ public class runSQL extends JFrame {
 				TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(
 						resultsTable.getModel());
 				resultsTable.setRowSorter(sorter);
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
-		}
-	}
-
-	private void excecuteButtonActionPerformed(ActionEvent e) {
-		try {
-			String xml = Methods
-					.executeSQLSelect(sqlField.getText().toString());
-			Variables.sqlRows = Methods.substringsBetween(xml, "<row>",
-					"</row>");
-			for (int i = 0; i < Variables.sqlRows.length; i++) {
-				Variables.sqlRowFields = Methods.substringsBetween(
-						Variables.sqlRows[0], "<", ">", "/");
-			}
-			Variables.sqlTableColumns = new String[Variables.sqlRowFields.length];
-			for (int x = 0; x < Variables.sqlRowFields.length; x++) {
-				Variables.sqlTableColumns[x] = Variables.sqlRowFields[x];
-				Variables.sqlTableRows = new String[Variables.sqlRows.length][Variables.sqlRowFields.length];
-			}
-			for (int y = 0; y < Variables.sqlRows.length; y++) {
-				for (int g = 0; g < Variables.sqlRowFields.length; g++) {
-					Variables.sqlTableRows[y][g] = Methods.substringBetween(
-							Variables.sqlRows[y], "<"
-									+ Variables.sqlRowFields[g] + ">", "</"
-									+ Variables.sqlRowFields[g] + ">");
-				}
-			}
-			resultsTable.setModel(new DefaultTableModel(Variables.sqlTableRows,
-					Variables.sqlTableColumns) {
-				private static final long serialVersionUID = -6396300478056746940L;
-				boolean[] columnEditable = new boolean[6];
-
-				public boolean isCellEditable(int rowIndex, int columnIndex) {
-					return this.columnEditable[columnIndex];
-				}
-			});
-			TableColumnModel cm = this.resultsTable.getColumnModel();
-			TableColumn tc = null;
-			for (int i = 0; i < resultsTable.getColumnCount(); i++) {
-				tc = resultsTable.getColumnModel().getColumn(i);
-				if (i == 1) {
-					tc.setWidth(1);
-					;
-				} else {
-					tc.setWidth(80);
-				}
-			}
-			TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(
-					resultsTable.getModel());
-			resultsTable.setRowSorter(sorter);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

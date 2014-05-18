@@ -34,7 +34,7 @@ public class Variables {
 	public static String[] lineAssocFirstnames = null;
 	public static String[] lineAssocLastnames = null;
 	public static String[] lineAssocUserids = null;
-	// DeviceAssocTable
+	// enduserAssocTable
 	public static String[] devAssocDevicenames = null;
 	public static String[] devAssocFirstnames = null;
 	public static String[] devAssocLastnames = null;
@@ -47,21 +47,21 @@ public class Variables {
 	public static String[][] oldDeviceTableEnduserRows;
 	public static String[][] newDeviceTableEnduserRows;
 	
-	public static String[][] oldDeviceAssocTableEnduserRows;
-	public static String[][] newDeviceAssocTableEnduserRows;
+	public static String[][] oldenduserAssocTableEnduserRows;
+	public static String[][] newenduserAssocTableEnduserRows;
 	
 	public static String[][] oldLineAssocTableEnduserRows;
 	public static String[][] newLineAssocTableEnduserRows;
 	
 	public static String[][] deviceTableRows;
 	public static String[][] lineAssocTableRows;
-	public static String[][] deviceAssocTableRows;
+	public static String[][] enduserAssocTableRows;
 	public static String[][] sqlTableRows;
 	
 	public static final String[] deviceTableColumns = { "#", "Device Name",
 			"Firstname", "Lastname", "Owner ID", "Description", "Device Type",
 			"Devicepool", "x" };
 	public static final String[] lineAssocTableColumns = { "#", "Pattern", "Firstname", "Lastname", "Owner ID", "x" };
-	public static final String[] deviceAssocTableColumns = { "#", "Device Name", "Owner ID", "Firstname", "Lastname", "x" };
+	public static final String[] enduserAssocTableColumns = { "#", "Device Name", "Owner ID", "Firstname", "Lastname", "x" };
 	public static String[] sqlTableColumns;
 }
