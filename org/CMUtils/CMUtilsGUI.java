@@ -108,7 +108,8 @@ public class CMUtilsGUI extends JFrame {
 						.getVerticalScrollBar();
 				scrollbar.setValue(scrollbar.getMaximum());
 			} else {
-				ExcelExporter ee = new ExcelExporter(enduserAssocTable, "", false);
+				ExcelExporter ee = new ExcelExporter(enduserAssocTable, "",
+						false);
 				ee.storeTableAsCSV(new File("enduserAssoc_database.csv"),
 						enduserAssocTable);
 				logArea.append("Successfully exported table! \n");
@@ -185,65 +186,6 @@ public class CMUtilsGUI extends JFrame {
 								.getVerticalScrollBar();
 						scrollbar.setValue(scrollbar.getMaximum());
 						newUpdateThread.start();
-						// Methods.updateDeviceSetEnduser(
-						// Variables.newDeviceTableEnduserRows[i][0],
-						// deviceTable.getModel().getValueAt(i, 1)
-						// .toString());
-						// System.out.println("Update1 " +
-						// Variables.newDeviceTableEnduserRows[i][0] + ", " +
-						// deviceTable.getModel().getValueAt(i, 1)
-						// .toString());
-						// Methods.removeEnduserDeviceMap(Variables.oldDeviceTableEnduserRows[i][3]);
-						// System.out.println("Update2 " +
-						// Variables.oldDeviceTableEnduserRows[i][3]);
-						// Methods.addEnduserDeviceMap(
-						// Variables.newDeviceTableEnduserRows[i][0],
-						// deviceTable.getModel().getValueAt(i, 1)
-						// .toString());
-						// System.out.println("Update3 " +
-						// Variables.newDeviceTableEnduserRows[i][0]);
-						// Methods.addNumplan(Variables.newDeviceTableEnduserRows[i][0]);
-						// System.out.println("Update4 " +
-						// Variables.newDeviceTableEnduserRows[i][0]);
-						// Methods.updatePrimaryExtension(
-						// Variables.newDeviceTableEnduserRows[i][0],
-						// deviceTable.getModel().getValueAt(i, 1)
-						// .toString());
-						// System.out.println("Update5 " +
-						// Variables.newDeviceTableEnduserRows[i][0]);
-						// Methods.addNumplanDevicemap(Variables.newDeviceTableEnduserRows[i][0]);
-						// System.out.println("Update6 " +
-						// Variables.newDeviceTableEnduserRows[i][0]);
-						// Methods.addDevicenumplanEnduserNumplanAssoc(Variables.newDeviceTableEnduserRows[i][0]);
-						// System.out.println("Update7 " +
-						// Variables.newDeviceTableEnduserRows[i][0]);
-					}
-				}
-			} else if (n == JOptionPane.NO_OPTION) {
-				Variables.newDeviceTableEnduserRows = new String[deviceTable
-						.getRowCount()][3];
-				for (int i = 0; i < deviceTable.getRowCount(); i++) {
-					Variables.newDeviceTableEnduserRows[i][0] = deviceTable
-							.getModel().getValueAt(i, 4).toString();
-					Variables.newDeviceTableEnduserRows[i][1] = deviceTable
-							.getModel().getValueAt(i, 3).toString();
-					Variables.newDeviceTableEnduserRows[i][2] = deviceTable
-							.getModel().getValueAt(i, 2).toString();
-					System.out
-							.println(Variables.newDeviceTableEnduserRows[i][0]
-									+ ", "
-									+ Variables.newDeviceTableEnduserRows[i][1]
-									+ ", "
-									+ Variables.newDeviceTableEnduserRows[i][2]);
-					if (!Variables.oldDeviceTableEnduserRows[i][0]
-							.equals(Variables.newDeviceTableEnduserRows[i][0])) {
-						System.out.println("Update where userid = "
-								+ Variables.newDeviceTableEnduserRows[i][0]
-								+ ", "
-								+ Variables.oldDeviceTableEnduserRows[i][0]
-								+ " and Device = "
-								+ deviceTable.getModel().getValueAt(i, 1)
-										.toString());
 					}
 				}
 			}
@@ -280,8 +222,6 @@ public class CMUtilsGUI extends JFrame {
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
-			} else if (n == JOptionPane.NO_OPTION) {
-
 			}
 		}
 	}
@@ -1325,11 +1265,12 @@ public class CMUtilsGUI extends JFrame {
 
 				};
 				enduserAssocTable.setModel(model);
-				TableColumn NC = enduserAssocTable.getColumnModel().getColumn(0);
+				TableColumn NC = enduserAssocTable.getColumnModel()
+						.getColumn(0);
 				TableColumn UpdateColumn = enduserAssocTable.getColumnModel()
 						.getColumn(5);
-				TableColumn DNC = enduserAssocTable.getColumnModel()
-						.getColumn(1);
+				TableColumn DNC = enduserAssocTable.getColumnModel().getColumn(
+						1);
 				final JComboBox deviceNameCombo = new JComboBox(
 						Variables.devAssocDevicenames);
 				deviceNameCombo.setEditable(true);
