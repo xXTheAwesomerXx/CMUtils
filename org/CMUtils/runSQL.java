@@ -10,11 +10,9 @@ import java.awt.event.KeyEvent;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,12 +22,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.LayoutStyle;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,9 +35,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.CMUtils.CMUtilsGUI.ComboBoxCellEditor;
-import org.CMUtils.CMUtilsGUI.S15WorkingBackspace;
-import org.CMUtils.CMUtilsGUI.allPhonesThread;
 import org.Container.Methods;
 import org.Container.Variables;
 import org.w3c.dom.Document;
@@ -117,7 +110,6 @@ public class runSQL extends JFrame {
 					return this.columnEditable[columnIndex];
 				}
 			});
-			TableColumnModel cm = this.resultsTable.getColumnModel();
 			TableColumn tc = null;
 			for (int i = 0; i < resultsTable.getColumnCount(); i++) {
 				tc = resultsTable.getColumnModel().getColumn(i);
@@ -270,7 +262,8 @@ public class runSQL extends JFrame {
 				String xml = Methods.executeSQLSelect(queryString);
 				querySelect.setVisible(false);
 				String xString = null;
-				if (xml.equalsIgnoreCase("<return>null</return>") || xml == null) {
+				if (xml.equalsIgnoreCase("<return>null</return>")
+						|| xml == null) {
 					JOptionPane
 							.showMessageDialog(
 									logArea,
@@ -335,7 +328,8 @@ public class runSQL extends JFrame {
 					TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(
 							resultsTable.getModel());
 					resultsTable.setRowSorter(sorter);
-					logArea.append("Retrieved " + Variables.sqlRows.length + " records! \n");
+					logArea.append("Retrieved " + Variables.sqlRows.length
+							+ " records! \n");
 				}
 			} catch (Exception error) {
 				error.printStackTrace();

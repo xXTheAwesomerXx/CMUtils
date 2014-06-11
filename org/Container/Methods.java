@@ -16,10 +16,10 @@ import javax.net.ssl.X509TrustManager;
 import javax.swing.JScrollBar;
 
 import org.CMUtils.CMUtilsGUI;
-import org.Container.AXLTrustManager.MyTrustManager;
 
 public class Methods {
 
+	// Method: getKeys
 	public static String getKeys(String which) {
 		int[] case_ = { 1, 2, 3 };
 		String[] which_ = { "ip", "user", "pass" };
@@ -40,6 +40,7 @@ public class Methods {
 		return null;
 	}
 
+	// Method: substringBetween
 	public static String substringBetween(String str, String open, String close) {
 		if ((str == null) || (open == null) || (close == null)) {
 			return null;
@@ -54,6 +55,7 @@ public class Methods {
 		return null;
 	}
 
+	// Method: substringsBetween
 	public static String[] substringsBetween(String str, String open,
 			String close) {
 		if ((str == null) || (open == null) || (close == null)) {
@@ -65,7 +67,7 @@ public class Methods {
 		}
 		int closeLen = close.length();
 		int openLen = open.length();
-		List<String> list = new ArrayList();
+		List<String> list = new ArrayList<String>();
 		int pos = 0;
 		while (pos < strLen - closeLen) {
 			int start = str.indexOf(open, pos);
@@ -85,9 +87,10 @@ public class Methods {
 		}
 		return (String[]) list.toArray(new String[list.size()]);
 	}
-	
+
+	// Method: substringsBetween (Delimiter)
 	public static String[] substringsBetween(String str, String open,
-			String close, String deliminator) {
+			String close, String delimiter) {
 		if ((str == null) || (open == null) || (close == null)) {
 			return null;
 		}
@@ -97,7 +100,7 @@ public class Methods {
 		}
 		int closeLen = close.length();
 		int openLen = open.length();
-		List<String> list = new ArrayList();
+		List<String> list = new ArrayList<String>();
 		int pos = 0;
 		while (pos < strLen - closeLen) {
 			int start = str.indexOf(open, pos);
@@ -109,7 +112,7 @@ public class Methods {
 			if (end < 0) {
 				break;
 			}
-			if (!str.substring(start, end).contains(deliminator)) {
+			if (!str.substring(start, end).contains(delimiter)) {
 				list.add(str.substring(start, end));
 
 			}
@@ -137,13 +140,8 @@ public class Methods {
 		return header;
 	}
 
-	public static boolean testConnection() {
-		String data = null;
-		Socket socket = null;
-		OutputStream out = null;
-		InputStream in = null;
-		byte[] bArray = null;
-		String SBuffer;
+	public static final String getEnvelope(String sqlQuery) {
+		String data;
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -152,9 +150,34 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		data = data + "<sql>SELECT * FROM numplan</sql>";
+		data = data + "<sql>" + sqlQuery + "</sql>";
 		data = data
 				+ "</axl:executeSQLQuery> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
+		return data;
+	}
+
+	public static boolean testConnection() {
+		String data = getEnvelope("SELECT * FROM numplan");
+		Socket socket = null;
+		OutputStream out = null;
+		InputStream in = null;
+		byte[] bArray = null;
+		String SBuffer;
+//		 data =
+//		 "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
+//		 data = data
+//		 +
+//		 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
+//		 data = data
+//		 +
+//		 "<SOAP-ENV:Body> <axl:executeSQLQuery xmlns:axl=\"http://www.cisco.com/AXL/7.0\" ";
+//		 data = data
+//		 +
+//		 " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
+//		 data = data + "sequence=\"1234\">";
+//		 data = data + "<sql>SELECT * FROM numplan</sql>";
+//		 data = data
+//		 + "</axl:executeSQLQuery> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
 		String header = getHttpsHeader(data);
 		header = header + data;
@@ -173,11 +196,9 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
@@ -217,20 +238,11 @@ public class Methods {
 
 	public static boolean updateDeviceSetEnduser(String arg1, String arg2) {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		String argument1String = null;
-		String argument2String = null;
-		// TODO: Argument 1 Strings
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		System.out.println("Args: " + arg1 + ", " + arg2);
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -239,15 +251,9 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "<sql>update device set device.fkenduser = ( select pkid from enduser where enduser.userid = '"
 				+ arg1 + "' ) where device.name = '" + arg2 + "'</sql>";
-		System.out.println(substringBetween(data, "<sql>", "</sql>"));
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLUpdate> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -256,8 +262,7 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
+
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -270,11 +275,9 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
@@ -363,19 +366,11 @@ public class Methods {
 
 	public static boolean addEnduserDeviceMap(String value1, String value2) {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		String argument1String = null;
-		String argument2String = null;
-		// TODO: Argument 1 Strings
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -384,16 +379,10 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "<sql>INSERT INTO enduserdevicemap (enduserdevicemap.fkenduser,enduserdevicemap.fkdevice,enduserdevicemap.tkuserassociation) SELECT enduser.pkid,device.pkid,typeuserassociation.enum FROM enduser,device,typeuserassociation WHERE enduser.userid = '"
 				+ value1 + "' and device.name = '" + value2
 				+ "' and typeuserassociation.enum = 1</sql>";
-		System.out.println(substringBetween(data, "<sql>", "</sql>"));
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLUpdate> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -402,8 +391,7 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
+
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -416,11 +404,9 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
@@ -501,19 +487,11 @@ public class Methods {
 
 	public static boolean removeEnduserDeviceMap(String value1) {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		String argument1String = null;
-		String argument2String = null;
-		// TODO: Argument 1 Strings
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -522,15 +500,8 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
-				+ "<sql>DELETE from enduserdevicemap WHERE fkdevice = ( SELECT pkid from device where name = '"
-				+ value1 + "' )</sql>";
-		System.out.println(substringBetween(data, "<sql>", "</sql>"));
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
+				+ "<sql>DELETE * from enduserdevicemap</sql>";
 		data = data
 				+ "</axl:executeSQLUpdate> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -539,8 +510,7 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
+
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -553,11 +523,9 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
@@ -635,23 +603,15 @@ public class Methods {
 		}
 		return true;
 	}
-	
-	//TODO: Add method to remove endusernumplanmap
+
+	// TODO: Add method to remove endusernumplanmap
 	public static boolean removeEnduserNumplanMap(String value1) {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		String argument1String = null;
-		String argument2String = null;
-		// TODO: Argument 1 Strings
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -660,15 +620,9 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
-				+ "<sql>DELETE from endusernumplanmap WHERE fkdevice = ( SELECT pkid from device where name = '"
+				+ "<sql>DELETE from endusernumplanmap WHERE fkdevice IS NOT ( SELECT pkid from device where name = '"
 				+ value1 + "' )</sql>";
-		System.out.println(substringBetween(data, "<sql>", "</sql>"));
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLUpdate> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -677,8 +631,7 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
+
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -691,11 +644,9 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
@@ -715,7 +666,6 @@ public class Methods {
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
 					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
-			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
 					"<name>", "</name>");
 			Variables.enduserFirstnames = Methods.substringsBetween(
@@ -776,17 +726,11 @@ public class Methods {
 
 	public static boolean addNumplan(String value1) {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		// TODO: Argument 1 Strings
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -795,15 +739,9 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "<sql>insert into numplan (dnorpattern,tkpatternusage) VALUES ("
 				+ value1 + ",2)</sql>";
-		System.out.println(substringBetween(data, "<sql>", "</sql>"));
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLUpdate> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -812,8 +750,7 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
+
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -826,11 +763,9 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
@@ -850,7 +785,6 @@ public class Methods {
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
 					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
-			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
 					"<name>", "</name>");
 			Variables.enduserFirstnames = Methods.substringsBetween(
@@ -911,17 +845,11 @@ public class Methods {
 
 	public static boolean updatePrimaryExtension(String value1, String value2) {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		// TODO: Argument 1 Strings
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -930,17 +858,11 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "<sql>insert into endusernumplanmap (fkenduser,fknumplan,tkdnusage) select enduser.pkid, numplan.pkid, typednusage.enum from enduser,numplan,typednusage where enduser.userid = '"
 				+ value1
 				+ "' and numplan.dnorpattern = ( select dnorpattern from numplan where pkid = ( select fknumplan from devicenumplanmap where fkdevice = ( select pkid from device where name = '"
 				+ value2 + "' )))and typednusage.enum = 1</sql>";
-		System.out.println(substringBetween(data, "<sql>", "</sql>"));
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLUpdate> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -949,8 +871,7 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
+
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -963,11 +884,9 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
@@ -987,7 +906,6 @@ public class Methods {
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
 					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
-			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
 					"<name>", "</name>");
 			Variables.enduserFirstnames = Methods.substringsBetween(
@@ -1048,17 +966,11 @@ public class Methods {
 
 	public static boolean addNumplanDevicemap(String value1) {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		// TODO: Argument 1 Strings
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -1067,17 +979,11 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "<sql>insert into devicenumplanmap (fkdevice,fknumplan,numplanindex) select device.pkid,endusernumplanmap.fknumplan,typednusage.enum from device, endusernumplanmap,typednusage where device.fkenduser = (select pkid from enduser where userid = '"
 				+ value1
 				+ "') and endusernumplanmap.fknumplan = ( select fknumplan from endusernumplanmap where fkenduser = ( select pkid from enduser where userid = '"
 				+ value1 + "')) and typednusage.enum = 1</sql>";
-		System.out.println(substringBetween(data, "<sql>", "</sql>"));
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLUpdate> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -1086,8 +992,7 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
+
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -1100,11 +1005,9 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
@@ -1124,7 +1027,6 @@ public class Methods {
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
 					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
-			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
 					"<name>", "</name>");
 			Variables.enduserFirstnames = Methods.substringsBetween(
@@ -1185,17 +1087,11 @@ public class Methods {
 
 	public static boolean addDevicenumplanEnduserNumplanAssoc(String value1) {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		// TODO: Argument 1 Strings
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -1204,18 +1100,11 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "<sql>insert into devicenumplanmapendusermap (fkdevicenumplanmap,fkenduser) select devicenumplanmap.pkid, enduser.pkid from devicenumplanmap, enduser where devicenumplanmap.pkid = ( select pkid from devicenumplanmap where fkdevice = ( select pkid from device where fkenduser = ( select pkid from enduser where userid = '"
 				+ value1
 				+ "' ))) and enduser.pkid = ( select pkid from enduser where userid = '"
 				+ value1 + "' )</sql>";
-		System.out.println(substringBetween(data, "<sql>", "</sql>"));
-
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLUpdate> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -1224,8 +1113,7 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
+
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -1238,11 +1126,9 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
@@ -1262,7 +1148,6 @@ public class Methods {
 			String replaceDevicepool = replaceModel.replace("<fkdevicepool/>",
 					"<fkdevicepool>N/A</fkdevicepool>");
 			String finalString = replaceDevicepool;
-			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
 					"<name>", "</name>");
 			Variables.enduserFirstnames = Methods.substringsBetween(
@@ -1324,8 +1209,6 @@ public class Methods {
 	public static boolean getDevices(int condition1, int condition2,
 			String argument) {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
@@ -1357,9 +1240,7 @@ public class Methods {
 		} else if (condition2 == 6) {
 			condition2String = "IS NOT NULL";
 		}
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
+
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -1368,37 +1249,16 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
-		String sqlString = null;
-		// if (condition1 != 3) {
 		data = data
 				+ "<sql>SELECT device.name as DeviceName, enduser.firstname as FirstName, enduser.lastname as LastName, enduser.userid as UserID, device.description as Desc, typemodel.name as ModelName, devicepool.name as DevicePool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN typemodel ON device.tkmodel = typemodel.enum LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid WHERE "
 				+ condition1String + " " + condition2String + "</sql>";
-		//System.out.println(substringBetween(data, "<sql>", "</sql>"));
-		// } else {
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
-		// + condition1String + " " + condition2String+"</sql>";
-		// sqlString = "DEVICES: " +
-		// "SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
-		// + condition1String + " " + condition2String;
-		// }
-		// System.out.println(sqlString);
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLQuery> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
-
 		String header = Methods.getHttpsHeader(data);
 		header = header + data;
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -1411,16 +1271,13 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
 			string = sb.toString();
-			// System.out.println("ALL: " + string);
 			String replacePhoneName = string.replace("<devicename/>",
 					"<devicename>N/A</devicename>");
 			String replaceFirstName = replacePhoneName.replace("<firstname/>",
@@ -1436,17 +1293,16 @@ public class Methods {
 			String replaceDevicepool = replaceModel.replace("<devicepool/>",
 					"<devicepool>N/A</devicepool>");
 			String finalString = replaceDevicepool;
-			// System.out.println(finalString);
 			Variables.phoneNames = Methods.substringsBetween(finalString,
 					"<devicename>", "</devicename>");
-			Variables.enduserFirstnames = Methods.substringsBetween(finalString,
-					"<firstname>", "</firstname>");
+			Variables.enduserFirstnames = Methods.substringsBetween(
+					finalString, "<firstname>", "</firstname>");
 			Variables.enduserLastnames = Methods.substringsBetween(finalString,
 					"<lastname>", "</lastname>");
 			Variables.phoneEndusers = Methods.substringsBetween(finalString,
 					"<userid>", "</userid>");
-			Variables.phoneDesc = Methods.substringsBetween(finalString, "<desc>",
-					"</desc>");
+			Variables.phoneDesc = Methods.substringsBetween(finalString,
+					"<desc>", "</desc>");
 			Variables.phoneModel = Methods.substringsBetween(finalString,
 					"<modelname>", "</modelname>");
 			Variables.phoneDevpool = Methods.substringsBetween(finalString,
@@ -1467,9 +1323,10 @@ public class Methods {
 			}
 			CMUtilsGUI.logArea.append("Retrieved "
 					+ Variables.phoneNames.length + " records! \n");
-			// JScrollBar scrollbar =
-			// CMUtilsGUI.logScrollPane.getVerticalScrollBar();
-			// scrollbar.setValue(scrollbar.getMaximum());
+			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+					.getVerticalScrollBar();
+			scrollbar.setAutoscrolls(true);
+			scrollbar.setValue(scrollbar.getMaximum());
 		} catch (UnknownHostException e) {
 			System.err.println("Error connecting to host: " + e.getMessage());
 			return false;
@@ -1504,18 +1361,12 @@ public class Methods {
 
 	public static boolean getNumplanAssoc() {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
+
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		String condition1String = null;
-		String condition2String = null;
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -1524,27 +1375,8 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
-		String sqlString = null;
-		// if (condition1 != 3) {
 		data = data
 				+ "<sql>SELECT dnorpattern AS EXT from numplan where not exists ( select endusernumplanmap.pkid from endusernumplanmap where endusernumplanmap.fknumplan = numplan.pkid )</sql>";
-		sqlString = "SELECT device.name as DeviceName, enduser.firstname as FirstName, enduser.lastname as LastName, enduser.userid as UserID, device.description as Desc, typemodel.name as ModelName, devicepool.name as DevicePool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN typemodel ON device.tkmodel = typemodel.enum LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid WHERE "
-				+ condition1String + " " + condition2String;
-		// } else {
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
-		// + condition1String + " " + condition2String+"</sql>";
-		// sqlString = "DEVICES: " +
-		// "SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
-		// + condition1String + " " + condition2String;
-		// }
-		// System.out.println(sqlString);
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLQuery> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -1553,8 +1385,7 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
+
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -1567,20 +1398,16 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
 			string = sb.toString();
-			// System.out.println("ALL: " + string);
 			String replaceDnorPattern = string.replace("<ext/>",
 					"<ext>N/A</ext>");
 			String finalString = replaceDnorPattern;
-			// System.out.println(finalString);
 			Variables.dnorPatterns = Methods.substringsBetween(finalString,
 					"<ext>", "</ext>");
 			Variables.lineAssocTableRows = new String[Variables.dnorPatterns.length][2];
@@ -1590,9 +1417,10 @@ public class Methods {
 			}
 			CMUtilsGUI.logArea.append("Retrieved "
 					+ Variables.dnorPatterns.length + " records! \n");
-			// JScrollBar scrollbar =
-			// CMUtilsGUI.logScrollPane.getVerticalScrollBar();
-			// scrollbar.setValue(scrollbar.getMaximum());
+			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+					.getVerticalScrollBar();
+			scrollbar.setAutoscrolls(true);
+			scrollbar.setValue(scrollbar.getMaximum());
 		} catch (UnknownHostException e) {
 			System.err.println("Error connecting to host: " + e.getMessage());
 			return false;
@@ -1627,18 +1455,11 @@ public class Methods {
 
 	public static boolean getLineAssocEndusers() {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		String condition1String = null;
-		String condition2String = null;
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -1647,27 +1468,8 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
-		String sqlString = null;
-		// if (condition1 != 3) {
 		data = data
 				+ "<sql>SELECT enduser.userid AS userid, enduser.firstname AS firstname, enduser.lastname AS lastname FROM enduser WHERE NOT EXISTS ( SELECT * from endusernumplanmap WHERE endusernumplanmap.fkenduser = enduser.pkid )</sql>";
-		sqlString = "SELECT device.name as DeviceName, enduser.firstname as FirstName, enduser.lastname as LastName, enduser.userid as UserID, device.description as Desc, typemodel.name as ModelName, devicepool.name as DevicePool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN typemodel ON device.tkmodel = typemodel.enum LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid WHERE "
-				+ condition1String + " " + condition2String;
-		// } else {
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
-		// + condition1String + " " + condition2String+"</sql>";
-		// sqlString = "DEVICES: " +
-		// "SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
-		// + condition1String + " " + condition2String;
-		// }
-		// System.out.println(sqlString);
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLQuery> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -1676,8 +1478,6 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -1690,16 +1490,13 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
 			string = sb.toString();
-			// System.out.println("ALL: " + string);
 			String replaceUserid = string.replace("<userid/>",
 					"<userid>N/A</userid>");
 			String replaceFirstname = replaceUserid.replace("<firstname/>",
@@ -1754,18 +1551,11 @@ public class Methods {
 
 	public static boolean getEnduserAssocDevices() {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		String condition1String = null;
-		String condition2String = null;
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -1774,27 +1564,8 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
-		String sqlString = null;
-		// if (condition1 != 3) {
 		data = data
 				+ "<sql>SELECT device.name AS DeviceName from device WHERE NOT EXISTS ( SELECT * from enduserdevicemap where enduserdevicemap.fkdevice = device.pkid AND device.fkenduser IS NOT NULL )</sql>";
-		sqlString = "SELECT device.name as DeviceName, enduser.firstname as FirstName, enduser.lastname as LastName, enduser.userid as UserID, device.description as Desc, typemodel.name as ModelName, devicepool.name as DevicePool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN typemodel ON device.tkmodel = typemodel.enum LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid WHERE "
-				+ condition1String + " " + condition2String;
-		// } else {
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
-		// + condition1String + " " + condition2String+"</sql>";
-		// sqlString = "DEVICES: " +
-		// "SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
-		// + condition1String + " " + condition2String;
-		// }
-		// System.out.println(sqlString);
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLQuery> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -1803,8 +1574,6 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -1817,16 +1586,13 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
 			string = sb.toString();
-			// System.out.println("ALL: " + string);
 			String replaceDevicename = string.replace("<devicename/>",
 					"<devicename>N/A</devicename>");
 			String finalString = replaceDevicename;
@@ -1870,18 +1636,11 @@ public class Methods {
 
 	public static boolean getEnduserAssoc() {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		String condition1String = null;
-		String condition2String = null;
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -1890,27 +1649,8 @@ public class Methods {
 		data = data
 				+ " xsi:schemaLocation=\"http://www.cisco.com/AXL/1.0 http://gkar.cisco.com/schema/axlsoap.xsd\" ";
 		data = data + "sequence=\"1234\">";
-		// data = data +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
-		String sqlString = null;
-		// if (condition1 != 3) {
 		data = data
 				+ "<sql>SELECT enduser.userid AS userid, enduser.firstname AS firstname, enduser.lastname AS lastname from enduser WHERE NOT EXISTS ( SELECT * from enduserdevicemap WHERE enduserdevicemap.fkenduser = enduser.pkid )</sql>";
-		sqlString = "SELECT device.name as DeviceName, enduser.firstname as FirstName, enduser.lastname as LastName, enduser.userid as UserID, device.description as Desc, typemodel.name as ModelName, devicepool.name as DevicePool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN typemodel ON device.tkmodel = typemodel.enum LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid WHERE "
-				+ condition1String + " " + condition2String;
-		// } else {
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
-		// + condition1String + " " + condition2String+"</sql>";
-		// sqlString = "DEVICES: " +
-		// "SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,device.tkmodel,device.fkdevicepool FROM device LEFT JOIN enduser ON device.fkenduser = enduser.pkid LEFT JOIN devicepool ON device.fkdevicepool = devicepool.pkid where "
-		// + condition1String + " " + condition2String;
-		// }
-		// System.out.println(sqlString);
-		// data = data
-		// +
-		// "<sql>SELECT device.name,enduser.firstname,enduser.lastname,enduser.userid,device.description,typemodel.name,devicepool.name FROM device LEFT JOIN enduser ON enduser.pkid = device.fkenduser LEFT JOIN typemodel ON typemodel.enum = device.tkmodel LEFT JOIN devicepool ON devicepool.pkid = device.fkdevicepool where device.name like 'SEP%'</sql>";
 		data = data
 				+ "</axl:executeSQLQuery> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
 
@@ -1919,8 +1659,6 @@ public class Methods {
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -1933,16 +1671,13 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
 			string = sb.toString();
-			// System.out.println("ALL: " + string);
 			String replaceUserid = string.replace("<userid/>",
 					"<userid>N/A</userid>");
 			String replaceFirstname = replaceUserid.replace("<firstname/>",
@@ -1965,9 +1700,10 @@ public class Methods {
 			}
 			CMUtilsGUI.logArea.append("Retrieved "
 					+ Variables.devAssocUserids.length + " records! \n");
-			// JScrollBar scrollbar =
-			// CMUtilsGUI.logScrollPane.getVerticalScrollBar();
-			// scrollbar.setValue(scrollbar.getMaximum());
+			JScrollBar scrollbar = CMUtilsGUI.logScrollPane
+					.getVerticalScrollBar();
+			scrollbar.setAutoscrolls(true);
+			scrollbar.setValue(scrollbar.getMaximum());
 		} catch (UnknownHostException e) {
 			System.err.println("Error connecting to host: " + e.getMessage());
 			return false;
@@ -2002,16 +1738,11 @@ public class Methods {
 
 	public static boolean getAllEndusers() {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -2025,14 +1756,11 @@ public class Methods {
 				+ "<sql>SELECT enduser.userid,enduser.firstname,enduser.lastname from enduser</sql>";
 		data = data
 				+ "</axl:executeSQLQuery> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
-
 		String header = Methods.getHttpsHeader(data);
 		header = header + data;
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -2045,11 +1773,9 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
@@ -2061,14 +1787,12 @@ public class Methods {
 			String replaceLastname = replaceFirstname.replace("<lastname/>",
 					"<lastname>N/A</lastname>");
 			String finalString = replaceLastname;
-			// System.out.println(finalString);
 			Variables.phoneAllEndusersIDs = Methods.substringsBetween(
 					finalString, "<userid>", "</userid");
 			Variables.phoneAllEndusersFirstnames = Methods.substringsBetween(
 					finalString, "<firstname>", "</firstname>");
 			Variables.phoneAllEndusersLastnames = Methods.substringsBetween(
 					finalString, "<lastname>", "</lastname>");
-
 			Variables.enduserRows = new String[Variables.phoneAllEndusersIDs.length][3];
 			for (int i = 0; i < Variables.phoneAllEndusersIDs.length; i++) {
 				Variables.enduserRows[i][0] = Variables.phoneAllEndusersIDs[i];
@@ -2109,16 +1833,11 @@ public class Methods {
 
 	public static String executeSQLSelect(String sqlSelectString) {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
 		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -2131,14 +1850,11 @@ public class Methods {
 		data = data + "<sql>" + sqlSelectString + "</sql>";
 		data = data
 				+ "</axl:executeSQLQuery> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
-		// System.out.println("SQLSelectString: " + sqlSelectString);
 		String header = Methods.getHttpsHeader(data);
 		header = header + data;
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -2151,11 +1867,9 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
@@ -2190,22 +1904,17 @@ public class Methods {
 			}
 		}
 		return "<return>"
-				+ Methods.substringBetween(string, "<return>", "</return>").replaceAll("></", ">N/A</").replaceAll("N/A</row>", "</row>")
-				+ "</return>";
+				+ Methods.substringBetween(string, "<return>", "</return>")
+						.replaceAll("></", ">N/A</")
+						.replaceAll("N/A</row>", "</row>") + "</return>";
 	}
 
 	public static boolean executeSQLUpdate(String sqlUpdateString) {
 		String data = null;
-		// String sAXLSOAPRequest = null;
-		// String sAXLRequest = null;
-		String string = null;
 		Socket socket = null;
 		OutputStream out = null;
 		InputStream in = null;
 		byte[] bArray = null;
-		String Base64String = Base64.encode(Methods.getKeys("user") + ":"
-				+ Methods.getKeys("pass"));
-		// Build the HTTPS Header
 		data = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" ";
 		data = data
 				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> ";
@@ -2218,14 +1927,11 @@ public class Methods {
 		data = data + "<sql>" + sqlUpdateString + "</sql>";
 		data = data
 				+ "</axl:executeSQLUpdate> </SOAP-ENV:Body> </SOAP-ENV:Envelope>";
-
 		String header = Methods.getHttpsHeader(data);
 		header = header + data;
 		StringBuffer sb = null;
 		try {
 			AXLTrustManager axl = new AXLTrustManager();
-			// Implement the certificate-related stuffs required for sending
-			// request via https
 			X509TrustManager xtm = axl.new MyTrustManager();
 			TrustManager[] mytm = { xtm };
 			SSLContext ctx = SSLContext.getInstance("SSL");
@@ -2238,15 +1944,13 @@ public class Methods {
 			bArray = new byte[2048];
 			sb = new StringBuffer(2048);
 			int ch = 0;
-			int sum = 0;
 			out = socket.getOutputStream();
 			out.write(header.getBytes());
 			while ((ch = in.read(bArray)) != -1) {
-				sum += ch;
 				sb.append(new String(bArray, 0, ch));
 			}
 			socket.close();
-			string = sb.toString();
+			sb.toString();
 		} catch (UnknownHostException e) {
 			System.err.println("Error connecting to host: " + e.getMessage());
 			return false;

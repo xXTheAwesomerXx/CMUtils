@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
+import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -40,7 +41,10 @@ import javax.swing.border.TitledBorder;
 import org.Container.Methods;
 import org.Container.Variables;
 
+@SuppressWarnings("all")
 public class ConnectGUI extends JFrame {
+	private static final long serialVersionUID = 6892535037828518281L;
+
 	public ConnectGUI() {
 		initComponents();
 	}
@@ -74,7 +78,6 @@ public class ConnectGUI extends JFrame {
 			path += File.separator + "CMUtils";
 			File customDir2 = new File(path + "Connections.txt");
 			if (customDir2.exists()) {
-				System.out.println("Connections File exists!");
 				try {
 					// Create object of
 					// FileReader
@@ -86,7 +89,6 @@ public class ConnectGUI extends JFrame {
 						FileWriter inputFile = new FileWriter(customDir2, true);
 						BufferedWriter bufferWriter = new BufferedWriter(
 								inputFile);
-						System.out.println("Files: " + inputFile.toString());
 						bufferWriter.write("<Connection>"
 								+ "<name>"
 								+ connectionName
@@ -102,7 +104,11 @@ public class ConnectGUI extends JFrame {
 										.getPassword()) + "</password>"
 								+ "</Connection>\n");
 						bufferWriter.close();
-						savedConnectionsList.setModel(connectionsListModel);
+						if (setConnectionsModel()) {
+							System.out.println("True");
+						} else {
+							System.out.println("False");
+						}
 					} else {
 						JOptionPane.showMessageDialog(
 								ConnectGUI.this.contentPanel,
@@ -120,43 +126,51 @@ public class ConnectGUI extends JFrame {
 	}
 
 	private void savedRemoveButtonActionPerformed(ActionEvent e) {
-		if (savedConnectionsList.getSelectedIndex() != 0) {
-			try {
-				String path = System.getProperty("user.home") + File.separator
+		try {
+			String path = System.getProperty("user.home") + File.separator
+					+ "Documents";
+			path += File.separator + "CMUtils";
+			File customDir = new File(path);
+			if (savedConnectionsList.getSelectedIndex() != 0) {
+			if (customDir.exists()) {
+				String path2 = System.getProperty("user.home") + File.separator
 						+ "Documents";
 				path += File.separator + "CMUtils";
-				File customDir = new File(path);
-				if (customDir.exists()) {
-					String path2 = System.getProperty("user.home")
-							+ File.separator + "Documents";
-					path += File.separator + "CMUtils";
-					File customDir2 = new File(path + "Connections.txt");
-					if (customDir2.exists()) {
-						String line = "<Connection><name>"
-								+ Variables.connectionNames[savedConnectionsList
-															.getSelectedIndex()]
-													+ "</name><host>"
-													+ Variables.connectionHostnames[savedConnectionsList
-															.getSelectedIndex()]
-													+ "</host><username>"
-													+ Variables.connectionUsernames[savedConnectionsList
-															.getSelectedIndex()]
-													+ "</username><password>"
-													+ Variables.connectionPasswords[savedConnectionsList
-															.getSelectedIndex()]
-													+ "</password></Connection>";
-						System.out
-								.println(line);
-						removeLineFromFile(
-								customDir2.getAbsolutePath(),
-								line);
+				File customDir2 = new File(path + "Connections.txt");
+				if (customDir2.exists()) {
+					String line = "<Connection><name>"
+							+ Variables.connectionNames[savedConnectionsList
+									.getSelectedIndex()]
+							+ "</name><host>"
+							+ Variables.connectionHostnames[savedConnectionsList
+									.getSelectedIndex()]
+							+ "</host><username>"
+							+ Variables.connectionUsernames[savedConnectionsList
+									.getSelectedIndex()]
+							+ "</username><password>"
+							+ Variables.connectionPasswords[savedConnectionsList
+									.getSelectedIndex()]
+							+ "</password></Connection>";
+					if (removeLineFromFile(customDir2.getAbsolutePath(), line)) {
+						int index = savedConnectionsList.getSelectedIndex();
+						System.out.println(index);
+						DefaultListModel theModel = getModel();
+						//System.out.println("Removed: " + theModel.remove(index));
+						savedConnectionsList.setModel(theModel);
 					}
+					
+//					if (setConnectionsModel()) {
+//						System.out.println("True");
+//					} else {
+//						System.out.println("False");
+//					}
 				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
 			}
-		} else {
-			System.out.println("Can't delete default...");
+			} else {
+				System.out.println("Can't delete default settings!");
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -238,26 +252,23 @@ public class ConnectGUI extends JFrame {
 		buttonBar = new JPanel();
 		okButton = new JButton();
 		cancelButton = new JButton();
-		connectionsListModel = new AbstractListModel<String>() {
+		connectionsListModel = new DefaultListModel<String>() {
 			private static final long serialVersionUID = -4256579372683350582L;
 
 			public String[] getValues() {
 				List<String> lines = new ArrayList<String>();
-				if (Variables.connectionNames.length == 0) {
+				if (Variables.connectionNames.length <= 1) {
 					try {
 						String path = System.getProperty("user.home")
 								+ File.separator + "Documents";
 						path += File.separator + "CMUtils";
 						File customDir = new File(path);
 						if (customDir.exists()) {
-							System.out.println(customDir + " already exists");
 							String path2 = System.getProperty("user.home")
 									+ File.separator + "Documents";
 							path += File.separator + "CMUtils";
 							File customDir2 = new File(path + "Connections.txt");
 							if (customDir2.exists()) {
-								System.out.println("File Exists!");
-								System.out.println(customDir2.getName());
 								try {
 									FileReader inputFile = new FileReader(
 											customDir2);
@@ -267,60 +278,125 @@ public class ConnectGUI extends JFrame {
 									while ((line = bufferReader.readLine()) != null) {
 										Variables.connectionsString = line
 												.toString();
-										System.out
-												.println(Variables.connectionsString);
 										lines.add(line.toString());
-										System.out.println("List: " + lines);
 									}
 									bufferReader.close();
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							} else if (customDir2.createNewFile()) {
-								System.out.println(customDir2 + " was created");
+								try {
+									FileWriter inputFile = new FileWriter(
+											customDir2, true);
+									BufferedWriter bufferWriter = new BufferedWriter(
+											inputFile);
+									bufferWriter
+											.write("<Connection>"
+													+ "<name>"
+													+ "Default"
+													+ "</name>"
+													+ "<host>"
+													+ connectionHostTextField
+															.getText()
+													+ "</host>"
+													+ "<username>"
+													+ connectionUsernameTextField
+															.getText()
+													+ "</username>"
+													+ "<password>"
+													+ new String(
+															connectionPasswordField
+																	.getPassword())
+													+ "</password>"
+													+ "</Connection>\n");
+									bufferWriter.close();
+									try {
+										FileReader inputFile2 = new FileReader(
+												customDir2);
+										BufferedReader bufferReader = new BufferedReader(
+												inputFile2);
+										String line;
+										while ((line = bufferReader.readLine()) != null) {
+											Variables.connectionsString = line
+													.toString();
+											lines.add(line.toString());
+										}
+										bufferReader.close();
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+
+								} catch (Exception ex) {
+									ex.printStackTrace();
+								}
 							} else {
 								System.out.println("Failed to create file");
 							}
 						} else if (customDir.mkdirs()) {
-							System.out.println(customDir + " was created");
 							String path2 = System.getProperty("user.home")
 									+ File.separator + "Documents";
 							path += File.separator + "CMUtils";
 							File customDir2 = new File(path + "Connections.txt");
 							if (customDir2.exists()) {
-								System.out.println("File Exists!");
-								System.out.println(customDir2.getName());
 								try {
-									// Create object of
-									// FileReader
 									FileReader inputFile = new FileReader(
 											customDir2);
-
-									// Instantiate the
-									// BufferedReader
-									// Class
 									BufferedReader bufferReader = new BufferedReader(
 											inputFile);
-
-									// Variable to hold
-									// the one line data
 									String line;
-
-									// Read file line by
-									// line and print on
-									// the console
 									while ((line = bufferReader.readLine()) != null) {
 										Variables.connectionsString = line
 												.toString();
+										lines.add(line.toString());
 									}
-									// Close the buffer
-									// reader
 									bufferReader.close();
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							} else if (customDir2.createNewFile()) {
-								System.out.println(customDir2 + " was created");
+								try {
+									FileWriter inputFile = new FileWriter(
+											customDir2, true);
+									BufferedWriter bufferWriter = new BufferedWriter(
+											inputFile);
+									bufferWriter
+											.write("<Connection>"
+													+ "<name>"
+													+ "Default"
+													+ "</name>"
+													+ "<host>"
+													+ connectionHostTextField
+															.getText()
+													+ "</host>"
+													+ "<username>"
+													+ connectionUsernameTextField
+															.getText()
+													+ "</username>"
+													+ "<password>"
+													+ new String(
+															connectionPasswordField
+																	.getPassword())
+													+ "</password>"
+													+ "</Connection>\n");
+									bufferWriter.close();
+									try {
+										FileReader inputFile2 = new FileReader(
+												customDir2);
+										BufferedReader bufferReader = new BufferedReader(
+												inputFile2);
+										String line;
+										while ((line = bufferReader.readLine()) != null) {
+											Variables.connectionsString = line
+													.toString();
+											lines.add(line.toString());
+										}
+										bufferReader.close();
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								} catch (Exception ex) {
+									ex.printStackTrace();
+								}
 							} else {
 								System.out.println("Failed to create file");
 							}
@@ -331,7 +407,6 @@ public class ConnectGUI extends JFrame {
 						e.printStackTrace();
 					}
 					String details = lines.toString();
-					System.out.println("Line: " + details);
 					Variables.connections = Methods.substringsBetween(details,
 							"<Connection>", "</Connection>");
 					Variables.connectionDetails = new String[Variables.connections.length][4];
@@ -363,251 +438,6 @@ public class ConnectGUI extends JFrame {
 				return Variables.connectionNames;
 			}
 
-			// public String[] getValues() {
-			// try {
-			// String path = System
-			// .getProperty("user.home")
-			// + File.separator
-			// + "Documents";
-			// path += File.separator + "CMUtils";
-			// File customDir = new File(path);
-			// if (customDir.exists()) {
-			// String path2 = System
-			// .getProperty("user.home")
-			// + File.separator
-			// + "Documents";
-			// path += File.separator
-			// + "CMUtils";
-			// File customDir2 = new File(path
-			// + "Connections.txt");
-			// if (customDir2.exists()) {
-			// try {
-			// // Create object of
-			// // FileReader
-			// FileReader inputFile = new FileReader(
-			// customDir2);
-			//
-			// // Instantiate the
-			// // BufferedReader Class
-			// BufferedReader bufferReader = new
-			// BufferedReader(
-			// inputFile);
-			//
-			// // Variable to hold the
-			// // one line data
-			// String line;
-			//
-			// // Read file line by
-			// // line and print on the
-			// // console
-			// while ((line = bufferReader
-			// .readLine()) != null) {
-			// Variables.connectionsString = line
-			// .toString();
-			// String details =
-			// Variables.connectionsString;
-			// Variables.connections = Methods
-			// .substringsBetween(
-			// details,
-			// "<Connection>",
-			// "</Connection>");
-			// Variables.connectionDetails = new
-			// String[Variables.connections.length][4];
-			// }
-			// // Close the buffer
-			// // reader
-			// bufferReader.close();
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
-			// } else if (customDir2
-			// .createNewFile()) {
-			// } else {
-			// }
-			// } else if (customDir.mkdirs()) {
-			// String path2 = System
-			// .getProperty("user.home")
-			// + File.separator
-			// + "Documents";
-			// path += File.separator
-			// + "CMUtils";
-			// File customDir2 = new File(path
-			// + "Connections.txt");
-			// if (customDir2.exists()) {
-			// try {
-			// // Create object of
-			// // FileReader
-			// FileReader inputFile = new FileReader(
-			// customDir2);
-			//
-			// // Instantiate the
-			// // BufferedReader Class
-			// BufferedReader bufferReader = new
-			// BufferedReader(
-			// inputFile);
-			//
-			// // Variable to hold the
-			// // one line data
-			// String line;
-			//
-			// // Read file line by
-			// // line and print on the
-			// // console
-			// while ((line = bufferReader
-			// .readLine()) != null) {
-			// Variables.connectionsString = line
-			// .toString();
-			// String details =
-			// Variables.connectionsString;
-			// Variables.connections = Methods
-			// .substringsBetween(
-			// details,
-			// "<Connection>",
-			// "</Connection>");
-			// Variables.connectionDetails = new
-			// String[Variables.connections.length][4];
-			// }
-			// // Close the buffer
-			// // reader
-			// bufferReader.close();
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
-			// } else if (customDir2
-			// .createNewFile()) {
-			// try {
-			// // Create object of
-			// // FileReader
-			// FileWriter inputFile = new FileWriter(
-			// customDir2,
-			// true);
-			// BufferedWriter bufferWriter = new
-			// BufferedWriter(
-			// inputFile);
-			// System.out.println("Files: "
-			// + inputFile
-			// .toString());
-			// bufferWriter.write("<Connection>"
-			// + "<name>"
-			// + "Default"
-			// + "</name>"
-			// + "<host>"
-			// + connectionHostTextField
-			// .getText()
-			// + "</host>"
-			// + "<username>"
-			// + connectionUsernameTextField
-			// .getText()
-			// + "</username>"
-			// + "<password>"
-			// + new String(
-			// connectionPasswordField
-			// .getPassword())
-			// + "</password>"
-			// + "</Connection>");
-			// bufferWriter.close();
-			// try {
-			// // Create object of
-			// // FileReader
-			// FileReader inputFile2 = new FileReader(
-			// customDir2);
-			//
-			// // Instantiate the
-			// // BufferedReader
-			// // Class
-			// BufferedReader bufferReader = new
-			// BufferedReader(
-			// inputFile2);
-			//
-			// // Variable to hold
-			// // the
-			// // one line data
-			// String line;
-			//
-			// // Read file line by
-			// // line and print on
-			// // the
-			// // console
-			// while ((line = bufferReader
-			// .readLine()) != null) {
-			// Variables.connectionsString = line
-			// .toString();
-			// String details =
-			// Variables.connectionsString;
-			// Variables.connections = Methods
-			// .substringsBetween(
-			// details,
-			// "<Connection>",
-			// "</Connection>");
-			// Variables.connectionDetails = new
-			// String[Variables.connections.length][4];
-			// }
-			// // Close the buffer
-			// // reader
-			// bufferReader
-			// .close();
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
-			//
-			// } catch (Exception ex) {
-			// ex.printStackTrace();
-			// }
-			// } else {
-			// System.out
-			// .println("Connections File doesn't exist!");
-			// }
-			// }
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
-			// for (int i = 0; i <
-			// Variables.connections.length; i++) {
-			// Variables.connectionDetails[i][0] =
-			// Methods
-			// .substringBetween(
-			// Variables.connections[i],
-			// "<host>", "</host>");
-			// Variables.connectionDetails[i][1] =
-			// Methods
-			// .substringBetween(
-			// Variables.connections[i],
-			// "<username>",
-			// "</username>");
-			// Variables.connectionDetails[i][2] =
-			// Methods
-			// .substringBetween(
-			// Variables.connections[i],
-			// "<password>",
-			// "</password>");
-			// Variables.connectionDetails[i][3] =
-			// Methods
-			// .substringBetween(
-			// Variables.connections[i],
-			// "<name>", "</name>");
-			// }
-			// Variables.connectionHostnames = new
-			// String[Variables.connections.length];
-			// Variables.connectionUsernames = new
-			// String[Variables.connections.length];
-			// Variables.connectionPasswords = new
-			// String[Variables.connections.length];
-			// Variables.connectionNames = new
-			// String[Variables.connections.length];
-			// for (int i = 0; i <
-			// Variables.connections.length; i++) {
-			// Variables.connectionHostnames[i] =
-			// Variables.connectionDetails[i][0];
-			// Variables.connectionUsernames[i] =
-			// Variables.connectionDetails[i][1];
-			// Variables.connectionPasswords[i] =
-			// Variables.connectionDetails[i][2];
-			// Variables.connectionNames[i] =
-			// Variables.connectionDetails[i][3];
-			// }
-			// return Variables.connectionNames;
-			// }
-
 			@Override
 			public int getSize() {
 				return getValues().length;
@@ -618,6 +448,7 @@ public class ConnectGUI extends JFrame {
 				return getValues()[i];
 			}
 		};
+
 		// ======== this ========
 		setTitle("CMUtils - Connection Credentials");
 		Container contentPane = getContentPane();
@@ -766,7 +597,7 @@ public class ConnectGUI extends JFrame {
 					{
 
 						// ---- savedConnectionsList ----
-						savedConnectionsList.setModel(connectionsListModel);
+						savedConnectionsList.setModel(getModel());
 						scrollPane1.setViewportView(savedConnectionsList);
 					}
 
@@ -964,23 +795,413 @@ public class ConnectGUI extends JFrame {
 	private JPanel contentPanel;
 	private JPanel connectionPanel;
 	private JLabel connectionHostLabel;
-	private JTextField connectionHostTextField;
+	private static JTextField connectionHostTextField;
 	private JLabel connectionPasswordLabel;
-	private JTextField connectionUsernameTextField;
+	private static JTextField connectionUsernameTextField;
 	private JLabel connectionUsernameLabel;
-	private JPasswordField connectionPasswordField;
+	private static JPasswordField connectionPasswordField;
 	private JPanel savedConnectionsPanel;
 	private JScrollPane scrollPane1;
-	private JList<String> savedConnectionsList;
+	private static JList<String> savedConnectionsList;
 	private JButton savedLoadButton;
 	private JButton savedSaveButton;
 	private JButton savedRemoveButton;
 	private JPanel buttonBar;
 	private JButton okButton;
 	private JButton cancelButton;
-	private AbstractListModel connectionsListModel;
+	private static DefaultListModel<String> connectionsListModel;
 
-	public void removeLineFromFile(String file, String lineToRemove) {
+	// Method: getModel
+	public static DefaultListModel getModel() {
+		DefaultListModel model = new DefaultListModel();
+		List<String> lines = new ArrayList<String>();
+		if (Variables.connectionNames.length <= 1) {
+			try {
+				String path = System.getProperty("user.home")
+						+ File.separator + "Documents";
+				path += File.separator + "CMUtils";
+				File customDir = new File(path);
+				if (customDir.exists()) {
+					String path2 = System.getProperty("user.home")
+							+ File.separator + "Documents";
+					path += File.separator + "CMUtils";
+					File customDir2 = new File(path + "Connections.txt");
+					if (customDir2.exists()) {
+						try {
+							FileReader inputFile = new FileReader(
+									customDir2);
+							BufferedReader bufferReader = new BufferedReader(
+									inputFile);
+							String line;
+							while ((line = bufferReader.readLine()) != null) {
+								Variables.connectionsString = line
+										.toString();
+								lines.add(line.toString());
+							}
+							bufferReader.close();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					} else if (customDir2.createNewFile()) {
+						try {
+							FileWriter inputFile = new FileWriter(
+									customDir2, true);
+							BufferedWriter bufferWriter = new BufferedWriter(
+									inputFile);
+							bufferWriter
+									.write("<Connection>"
+											+ "<name>"
+											+ "Default"
+											+ "</name>"
+											+ "<host>"
+											+ connectionHostTextField
+													.getText()
+											+ "</host>"
+											+ "<username>"
+											+ connectionUsernameTextField
+													.getText()
+											+ "</username>"
+											+ "<password>"
+											+ new String(
+													connectionPasswordField
+															.getPassword())
+											+ "</password>"
+											+ "</Connection>\n");
+							bufferWriter.close();
+							try {
+								FileReader inputFile2 = new FileReader(
+										customDir2);
+								BufferedReader bufferReader = new BufferedReader(
+										inputFile2);
+								String line;
+								while ((line = bufferReader.readLine()) != null) {
+									Variables.connectionsString = line
+											.toString();
+									lines.add(line.toString());
+								}
+								bufferReader.close();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+					} else {
+						System.out.println("Failed to create file");
+					}
+				} else if (customDir.mkdirs()) {
+					String path2 = System.getProperty("user.home")
+							+ File.separator + "Documents";
+					path += File.separator + "CMUtils";
+					File customDir2 = new File(path + "Connections.txt");
+					if (customDir2.exists()) {
+						try {
+							FileReader inputFile = new FileReader(
+									customDir2);
+							BufferedReader bufferReader = new BufferedReader(
+									inputFile);
+							String line;
+							while ((line = bufferReader.readLine()) != null) {
+								Variables.connectionsString = line
+										.toString();
+								lines.add(line.toString());
+							}
+							bufferReader.close();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					} else if (customDir2.createNewFile()) {
+						try {
+							FileWriter inputFile = new FileWriter(
+									customDir2, true);
+							BufferedWriter bufferWriter = new BufferedWriter(
+									inputFile);
+							bufferWriter
+									.write("<Connection>"
+											+ "<name>"
+											+ "Default"
+											+ "</name>"
+											+ "<host>"
+											+ connectionHostTextField
+													.getText()
+											+ "</host>"
+											+ "<username>"
+											+ connectionUsernameTextField
+													.getText()
+											+ "</username>"
+											+ "<password>"
+											+ new String(
+													connectionPasswordField
+															.getPassword()) + "</password>"
+									+ "</Connection>\n");
+							bufferWriter.close();
+							try {
+								FileReader inputFile2 = new FileReader(
+										customDir2);
+								BufferedReader bufferReader = new BufferedReader(
+										inputFile2);
+								String line;
+								while ((line = bufferReader.readLine()) != null) {
+									Variables.connectionsString = line
+											.toString();
+									lines.add(line.toString());
+								}
+								bufferReader.close();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+					} else {
+						System.out.println("Failed to create file");
+					}
+				} else {
+					System.out.println(customDir + " was not created");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			String details = lines.toString();
+			Variables.connections = Methods.substringsBetween(details,
+					"<Connection>", "</Connection>");
+			Variables.connectionDetails = new String[Variables.connections.length][4];
+			for (int i = 0; i < Variables.connections.length; i++) {
+				Variables.connectionDetails[i][0] = Methods.substringBetween(
+						Variables.connections[i], "<host>", "</host>");
+				Variables.connectionDetails[i][1] = Methods.substringBetween(
+						Variables.connections[i], "<username>", "</username>");
+				Variables.connectionDetails[i][2] = Methods.substringBetween(
+						Variables.connections[i], "<password>", "</password>");
+				Variables.connectionDetails[i][3] = Methods.substringBetween(
+						Variables.connections[i], "<name>", "</name>");
+				model.addElement(Variables.connectionDetails[i][3]);
+			}
+			Variables.connectionHostnames = new String[Variables.connections.length];
+			Variables.connectionUsernames = new String[Variables.connections.length];
+			Variables.connectionPasswords = new String[Variables.connections.length];
+			Variables.connectionNames = new String[Variables.connections.length];
+			for (int i = 0; i < Variables.connections.length; i++) {
+				Variables.connectionHostnames[i] = Variables.connectionDetails[i][0];
+				Variables.connectionUsernames[i] = Variables.connectionDetails[i][1];
+				Variables.connectionPasswords[i] = Variables.connectionDetails[i][2];
+				Variables.connectionNames[i] = Variables.connectionDetails[i][3];
+			}
+		}
+		for (int i = 0; i < model.getSize(); i++) {
+			System.out.println(model.getElementAt(i));
+		}
+		return model;
+	}
+
+	public static boolean setConnectionsModel() {
+		DefaultListModel model = new DefaultListModel<String>() {
+			private static final long serialVersionUID = -4256579372683350582L;
+
+			public String[] getValues() {
+				List<String> lines = new ArrayList<String>();
+				if (Variables.connectionNames.length <= 1) {
+					try {
+						String path = System.getProperty("user.home")
+								+ File.separator + "Documents";
+						path += File.separator + "CMUtils";
+						File customDir = new File(path);
+						if (customDir.exists()) {
+							String path2 = System.getProperty("user.home")
+									+ File.separator + "Documents";
+							path += File.separator + "CMUtils";
+							File customDir2 = new File(path + "Connections.txt");
+							if (customDir2.exists()) {
+								try {
+									FileReader inputFile = new FileReader(
+											customDir2);
+									BufferedReader bufferReader = new BufferedReader(
+											inputFile);
+									String line;
+									while ((line = bufferReader.readLine()) != null) {
+										Variables.connectionsString = line
+												.toString();
+										lines.add(line.toString());
+									}
+									bufferReader.close();
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							} else if (customDir2.createNewFile()) {
+								try {
+									FileWriter inputFile = new FileWriter(
+											customDir2, true);
+									BufferedWriter bufferWriter = new BufferedWriter(
+											inputFile);
+									bufferWriter
+											.write("<Connection>"
+													+ "<name>"
+													+ "Default"
+													+ "</name>"
+													+ "<host>"
+													+ connectionHostTextField
+															.getText()
+													+ "</host>"
+													+ "<username>"
+													+ connectionUsernameTextField
+															.getText()
+													+ "</username>"
+													+ "<password>"
+													+ new String(
+															connectionPasswordField
+																	.getPassword())
+													+ "</password>"
+													+ "</Connection>\n");
+									bufferWriter.close();
+									try {
+										FileReader inputFile2 = new FileReader(
+												customDir2);
+										BufferedReader bufferReader = new BufferedReader(
+												inputFile2);
+										String line;
+										while ((line = bufferReader.readLine()) != null) {
+											Variables.connectionsString = line
+													.toString();
+											lines.add(line.toString());
+										}
+										bufferReader.close();
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+
+								} catch (Exception ex) {
+									ex.printStackTrace();
+								}
+							} else {
+								System.out.println("Failed to create file");
+							}
+						} else if (customDir.mkdirs()) {
+							String path2 = System.getProperty("user.home")
+									+ File.separator + "Documents";
+							path += File.separator + "CMUtils";
+							File customDir2 = new File(path + "Connections.txt");
+							if (customDir2.exists()) {
+								try {
+									FileReader inputFile = new FileReader(
+											customDir2);
+									BufferedReader bufferReader = new BufferedReader(
+											inputFile);
+									String line;
+									while ((line = bufferReader.readLine()) != null) {
+										Variables.connectionsString = line
+												.toString();
+										lines.add(line.toString());
+									}
+									bufferReader.close();
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							} else if (customDir2.createNewFile()) {
+								try {
+									FileWriter inputFile = new FileWriter(
+											customDir2, true);
+									BufferedWriter bufferWriter = new BufferedWriter(
+											inputFile);
+									bufferWriter
+											.write("<Connection>"
+													+ "<name>"
+													+ "Default"
+													+ "</name>"
+													+ "<host>"
+													+ connectionHostTextField
+															.getText()
+													+ "</host>"
+													+ "<username>"
+													+ connectionUsernameTextField
+															.getText()
+													+ "</username>"
+													+ "<password>"
+													+ new String(
+															connectionPasswordField
+																	.getPassword())
+													+ "</password>"
+													+ "</Connection>\n");
+									bufferWriter.close();
+									try {
+										FileReader inputFile2 = new FileReader(
+												customDir2);
+										BufferedReader bufferReader = new BufferedReader(
+												inputFile2);
+										String line;
+										while ((line = bufferReader.readLine()) != null) {
+											Variables.connectionsString = line
+													.toString();
+											lines.add(line.toString());
+										}
+										bufferReader.close();
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								} catch (Exception ex) {
+									ex.printStackTrace();
+								}
+							} else {
+								System.out.println("Failed to create file");
+							}
+						} else {
+							System.out.println(customDir + " was not created");
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					String details = lines.toString();
+					Variables.connections = Methods.substringsBetween(details,
+							"<Connection>", "</Connection>");
+					Variables.connectionDetails = new String[Variables.connections.length][4];
+					for (int i = 0; i < Variables.connections.length; i++) {
+						Variables.connectionDetails[i][0] = Methods
+								.substringBetween(Variables.connections[i],
+										"<host>", "</host>");
+						Variables.connectionDetails[i][1] = Methods
+								.substringBetween(Variables.connections[i],
+										"<username>", "</username>");
+						Variables.connectionDetails[i][2] = Methods
+								.substringBetween(Variables.connections[i],
+										"<password>", "</password>");
+						Variables.connectionDetails[i][3] = Methods
+								.substringBetween(Variables.connections[i],
+										"<name>", "</name>");
+					}
+					Variables.connectionHostnames = new String[Variables.connections.length];
+					Variables.connectionUsernames = new String[Variables.connections.length];
+					Variables.connectionPasswords = new String[Variables.connections.length];
+					Variables.connectionNames = new String[Variables.connections.length];
+					for (int i = 0; i < Variables.connections.length; i++) {
+						Variables.connectionHostnames[i] = Variables.connectionDetails[i][0];
+						Variables.connectionUsernames[i] = Variables.connectionDetails[i][1];
+						Variables.connectionPasswords[i] = Variables.connectionDetails[i][2];
+						Variables.connectionNames[i] = Variables.connectionDetails[i][3];
+					}
+				}
+				return Variables.connectionNames;
+			}
+
+			@Override
+			public int getSize() {
+				return getValues().length;
+			}
+
+			@Override
+			public String getElementAt(int i) {
+				return getValues()[i];
+			}
+		};
+		try {
+			savedConnectionsList.setModel(connectionsListModel);
+			return true;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean removeLineFromFile(String file, String lineToRemove) {
 
 		try {
 
@@ -988,7 +1209,7 @@ public class ConnectGUI extends JFrame {
 
 			if (!inFile.isFile()) {
 				System.out.println("Parameter is not an existing file");
-				return;
+				return false;
 			}
 
 			// Construct the new file that will later be renamed to the original
@@ -1016,18 +1237,20 @@ public class ConnectGUI extends JFrame {
 			// Delete the original file
 			if (!inFile.delete()) {
 				System.out.println("Could not delete file");
-				return;
+				return false;
 			}
 
 			// Rename the new file to the filename the original file had.
-			if (!tempFile.renameTo(inFile))
+			if (!tempFile.renameTo(inFile)) {
 				System.out.println("Could not rename file");
-
+				return false;
+			}
 		} catch (FileNotFoundException ex) {
 			ex.printStackTrace();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+		return true;
 	}
 
 	public class testConnectionThread extends Thread {
